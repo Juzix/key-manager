@@ -142,6 +142,14 @@ module.exports = {
             return cb(JSON.parse(fs.readFileSync(filepath)));
         });
     },
+    importFromDir: function(datadir, cb) {
+        var keyObjects = [];
+        if (isFunction(cb)) {
+            cb(keyObjects)
+        } else {
+            return keyObjects;
+        }
+    },
     resetPassword: function(oldPassword, newPassword, keyObject, cb) {
         var newKeyObject = null;
         var self = this;

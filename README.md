@@ -102,7 +102,7 @@ key.resetPassword('123456', '654321', keyObject, function(newKeyObject){
 ### 6 获取key的私钥
 |     参数      |             说明                   |
 | :------------   | :--------------------------------- |
-| password       | 旧密码               |
+| password       | 密码               |
 | keyObject       | key               |
 | cb              | 回调函数，如果不传，那么同步调用      |
 ```JavaScript

@@ -40,10 +40,14 @@ module.exports = {
     getOption: function() {
         return options;
     },
-    createDk: function(cb) {
+    createDk: function(err, cb) {
+        err = 0;
         if (isFunction(cb)) {
             keythereum.create(this.getParams(), function(dk) {
-                cb(dk);
+                if (!dk) {
+                    err = 1;
+                }
+                cb(err, dk);
             })
         } else {
             var dk = keythereum.create(this.getParams());
@@ -65,12 +69,23 @@ module.exports = {
     },
     createKey: function(username, password, cb) {
         var options = this.getOption();
+        var err = 0;
         if (isFunction(cb)) {
-            this.createDk(function(dk) {
-                keythereum.dump(password, dk.privateKey, dk.salt, dk.iv, options, function(keyObject) {
-                    keyObject.id = username;
-                    cb(keyObject);
-                })
+            this.createDk(function(_err, dk) {
+                err = _err;
+                if (!err) {
+                    keythereum.dump(password, dk.privateKey, dk.salt, dk.iv, options, function(err, keyObject) {
+                        if (keyObject) {
+                            keyObject.id = username;
+                        } else {
+                            err = 2;
+                        }
+                        cb(err, keyObject);
+                    })
+                } else {
+                    cb(err, keyObject);
+                }
+
             })
         } else {
             var dk = this.createDk();
@@ -83,6 +98,7 @@ module.exports = {
         var outfile,
             outpath,
             json;
+        var err = 1;
         keystore = keystore || "keystore";
         outfile = outfile || this.generateKeystoreFilename(keyObject);
         outpath = path.join(keystore, outfile);
@@ -96,9 +112,10 @@ module.exports = {
             return outpath;
         }
         fs.writeFile(outpath, json, function(ex) {
-            if (ex)
-                throw ex;
-            cb(outpath);
+            if (ex){
+                err = 1;
+            }
+            cb(err, outpath);
         });
     },
     importFromFile: function(username, datadir, cb) {
@@ -122,8 +139,7 @@ module.exports = {
 
         if (this.browser)
             throw new Error("method only available in Node.js");
-        datadir = datadir || path.join(process.env.HOME, ".ethereum");
-        keystore = path.join(datadir, "keystore");
+        keystore = datadir || "keystore"
         if (!isFunction(cb)) {
             filepath = findKeyfile(keystore, username, fs.readdirSync(keystore));
             if (!filepath) {
@@ -134,12 +150,12 @@ module.exports = {
         fs.readdir(keystore, function(ex, files) {
             var filepath;
             if (ex)
-                return cb(ex);
+                return cb(1, null);
             filepath = findKeyfile(keystore, username, files);
             if (!filepath) {
                 return new Error("could not find key file for username " + username);
             }
-            return cb(JSON.parse(fs.readFileSync(filepath)));
+            return cb(0, JSON.parse(fs.readFileSync(filepath)));
         });
     },
     importFromDir: function(keystore, cb) {
@@ -149,7 +165,7 @@ module.exports = {
             fs.readdir(keystore, function(err, files) {
                 if (err || files.errno) {
                     console.log('readFile ' + keystore + ' error: ', err || files.errno);
-                    cb(keyObjects);
+                    cb(1, keyObjects);
                 } else {
                     files.forEach(function(file, index) {
                         fs.readFile(keystore + '/' + file, function(err, data) {
@@ -160,7 +176,7 @@ module.exports = {
                                 keyObjects.push(key);
                             }
                             if (index + 1 >= files.length) {
-                                cb(keyObjects);
+                                cb(0, keyObjects);
                             }
                         });
                     });
@@ -185,20 +201,20 @@ module.exports = {
         var newKeyObject = null;
         var self = this;
         if (isFunction(cb)) {
-            self.recover(oldPassword, keyObject, function(privateKey) {
+            self.recover(oldPassword, keyObject, function(err, privateKey) {
                 if (privateKey) {
-                    self.createDk(function(dk) {
+                    self.createDk(function(err, dk) {
                         if (dk) {
-                            self.createKey(keyObject.id, newPassword, function(keyObject) {
+                            self.createKey(keyObject.id, newPassword, function(err, keyObject) {
                                 newKeyObject = keyObject
-                                cb(newKeyObject);
+                                cb(err, newKeyObject);
                             })
                         } else {
-                            cb(newKeyObject);
+                            cb(err, newKeyObject);
                         }
                     })
                 } else {
-                    cb(newKeyObject);
+                    cb(err, newKeyObject);
                 }
             });
         } else {
@@ -244,7 +260,11 @@ module.exports = {
             return verifyAndDecrypt(self.deriveKey(password, salt, keyObjectCrypto), salt, iv, ciphertext, algo);
         }
         self.deriveKey(password, salt, keyObjectCrypto, function(derivedKey) {
-            cb(verifyAndDecrypt(derivedKey, salt, iv, ciphertext, algo));
+            var err = 0;
+            if (derivedKey) {
+                err = 1;
+            }
+            cb(err, verifyAndDecrypt(derivedKey, salt, iv, ciphertext, algo));
         });
     }
 }

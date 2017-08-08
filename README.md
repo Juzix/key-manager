@@ -77,7 +77,7 @@ key.importFromFile('lcq', './keystore', function(keyObject){
 ### 4 根据目录读取所有的key
 |     参数      |             说明                   |
 | :------------   | :--------------------------------- |
-| datadir       | 目录名               |
+| keystore       | 目录名               |
 | cb              | 回调函数，如果不传，那么同步调用      |
 ```JavaScript
 key.importFromDir('./keystore', function(keyObjects){

@@ -142,11 +142,42 @@ module.exports = {
             return cb(JSON.parse(fs.readFileSync(filepath)));
         });
     },
-    importFromDir: function(datadir, cb) {
+    importFromDir: function(keystore, cb) {
         var keyObjects = [];
-        if (isFunction(cb)) {
-            cb(keyObjects)
+        keystore = keystore || "keystore";
+        if (!isFunction(cb)) {
+            fs.readdir(keystore, function(err, files) {
+                if (err || files.errno) {
+                    console.log('readFile ' + keystore + ' error: ', err || files.errno);
+                    cb(keyObjects);
+                } else {
+                    files.forEach(function(file, index) {
+                        fs.readFile(keystore + '/' + file, function(err, data) {
+                            if (!err) {
+                                var key = JSON.parse(data);
+                                key.privateKey = null;
+                                key.address = '0x' + key.address;
+                                keyObjects.push(key);
+                            }
+                            if (index + 1 >= files.length) {
+                                cb(keyObjects);
+                            }
+                        });
+                    });
+                }
+            });
         } else {
+            var files = fs.readdirSync(keystore);
+            var fileCount = files.length;
+            files.forEach(function(file, index) {
+                try {
+                    var data = fs.readFileSync(keystore + '/' + file);
+                    var key = JSON.parse(data);
+                    key.privateKey = null;
+                    key.address = '0x' + key.address;
+                    keyObjects.push(key);
+                } catch (e) {}
+            });
             return keyObjects;
         }
     },

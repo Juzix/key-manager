@@ -145,7 +145,7 @@ module.exports = {
     importFromDir: function(keystore, cb) {
         var keyObjects = [];
         keystore = keystore || "keystore";
-        if (!isFunction(cb)) {
+        if (isFunction(cb)) {
             fs.readdir(keystore, function(err, files) {
                 if (err || files.errno) {
                     console.log('readFile ' + keystore + ' error: ', err || files.errno);

@@ -296,5 +296,22 @@ module.exports = {
             }
             cb(err, privateKey);
         });
+    },
+    getPublicKey: function(keyObject, cb){
+        var err = 0;
+        var publicKey = null;
+        if (isFunction(cb)) {
+            cb(err, publicKey);
+        }
+        return publicKey;
+    },
+    restoreKeys: function(src, dist, cb){
+        var err = 0;
+        var files = [];
+        if (isFunction(cb)) {
+            cb(err, files);
+        } else {
+            return files;
+        }
     }
 }

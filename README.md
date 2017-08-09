@@ -121,3 +121,14 @@ key.recover('123456', keyObject, function(err, privateKey){
     console.log(privateKey);
 });
 ```
+### 7 获取key的公钥
+|     参数      |             说明                   |
+| :------------   | :--------------------------------- |
+| keyObject       | key               |
+| cb(err, publicKey) | 回调函数，如果不传，那么同步调用      |
+返回值说明：用户的私钥。
+```JavaScript
+key.getPublicKey(keyObject, function(err, publicKey){
+    console.log(publicKey);
+});
+```

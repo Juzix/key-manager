@@ -290,10 +290,11 @@ module.exports = {
         }
         self.deriveKey(password, salt, keyObjectCrypto, function(derivedKey) {
             var err = 0;
-            if (!derivedKey) {
+            var privateKey = verifyAndDecrypt(derivedKey, salt, iv, ciphertext, algo);
+            if (!privateKey) {
                 err = 1;
             }
-            cb(err, verifyAndDecrypt(derivedKey, salt, iv, ciphertext, algo));
+            cb(err, privateKey);
         });
     }
 }

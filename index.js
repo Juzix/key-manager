@@ -18,6 +18,8 @@ var options = {
     }
 };
 
+var defaultPath = './keystore'
+
 function keccak256(buffer) {
     return createKeccakHash("keccak256").update(buffer).digest();
 }
@@ -40,7 +42,7 @@ module.exports = {
     getOption: function() {
         return options;
     },
-    createDk: function(err, cb) {
+    createDk: function(cb) {
         err = 0;
         if (isFunction(cb)) {
             keythereum.create(this.getParams(), function(dk) {
@@ -57,12 +59,8 @@ module.exports = {
     generateKeystoreFilename: function(keyObject) {
         var username = keyObject.id;
         var address = keyObject.address;
-        var filename = address + "--" + username;
+        var filename = address + "_" + username;
         filename = username;
-        // Windows does not permit ":" in filenames, replace all with "-"
-        if (process.platform === "win32") {
-            filename = filename.split(":").join("-");
-        }
         filename += '.json';
 
         return filename;
@@ -74,7 +72,7 @@ module.exports = {
             this.createDk(function(_err, dk) {
                 err = _err;
                 if (!err) {
-                    keythereum.dump(password, dk.privateKey, dk.salt, dk.iv, options, function(err, keyObject) {
+                    keythereum.dump(password, dk.privateKey, dk.salt, dk.iv, options, function(keyObject) {
                         if (keyObject) {
                             keyObject.id = username;
                         } else {
@@ -98,8 +96,9 @@ module.exports = {
         var outfile,
             outpath,
             json;
-        var err = 1;
-        keystore = keystore || "keystore";
+        var err = 0;
+        keystore = keystore || defaultPath;
+        // keystore = path.join(__dirname, keystore);
         outfile = outfile || this.generateKeystoreFilename(keyObject);
         outpath = path.join(keystore, outfile);
         json = JSON.stringify(keyObject, null, 4);
@@ -111,11 +110,27 @@ module.exports = {
             fs.writeFileSync(outpath, json);
             return outpath;
         }
-        fs.writeFile(outpath, json, function(ex) {
-            if (ex){
-                err = 1;
+        fs.exists(keystore, function(exists) {
+            console.log(keystore);
+            if (exists) {
+                fs.writeFile(outpath, json, function(ex) {
+                    if (ex) {
+                        err = 1;
+                        outpath = null;
+                    }
+                    cb(err, outpath);
+                });
+            } else {
+                fs.mkdir(keystore, function() {
+                    fs.writeFile(outpath, json, function(ex) {
+                        if (ex) {
+                            err = 1;
+                            outpath = null;
+                        }
+                        cb(err, outpath);
+                    });
+                });
             }
-            cb(err, outpath);
         });
     },
     importFromFile: function(username, datadir, cb) {
@@ -139,7 +154,7 @@ module.exports = {
 
         if (this.browser)
             throw new Error("method only available in Node.js");
-        keystore = datadir || "keystore"
+        keystore = datadir || defaultPath
         if (!isFunction(cb)) {
             filepath = findKeyfile(keystore, username, fs.readdirSync(keystore));
             if (!filepath) {
@@ -160,7 +175,7 @@ module.exports = {
     },
     importFromDir: function(keystore, cb) {
         var keyObjects = [];
-        keystore = keystore || "keystore";
+        keystore = keystore || defaultPath;
         if (isFunction(cb)) {
             fs.readdir(keystore, function(err, files) {
                 if (err || files.errno) {
@@ -168,18 +183,31 @@ module.exports = {
                     cb(1, keyObjects);
                 } else {
                     files.forEach(function(file, index) {
-                        fs.readFile(keystore + '/' + file, function(err, data) {
-                            if (!err) {
-                                var key = JSON.parse(data);
-                                key.privateKey = null;
-                                key.address = '0x' + key.address;
-                                keyObjects.push(key);
-                            }
-                            if (index + 1 >= files.length) {
-                                cb(0, keyObjects);
-                            }
-                        });
+                        try {
+                            var data = fs.readFileSync(keystore + '/' + file);
+                            var key = JSON.parse(data);
+                            key.privateKey = null;
+                            key.address = '0x' + key.address;
+                            keyObjects.push(key);
+                        } catch (e) {}
+
+                        // console.log(file, index);
+                        // var _fs = require("fs");
+                        // _fs.readFile(keystore + '/' + file, function(err, data) {
+                        //     if (!err) {
+                        //         var key = JSON.parse(data);
+                        //         key.privateKey = null;
+                        //         key.address = '0x' + key.address;
+                        //         keyObjects.push(key);
+                        //     } else {
+                        //         console.log('importFromDir' , err);
+                        //     }
+                        //     if (index + 1 >= files.length) {
+                        //         cb(0, keyObjects);
+                        //     }
+                        // });
                     });
+                    cb(0, keyObjects);
                 }
             });
         } else {
@@ -234,6 +262,7 @@ module.exports = {
             algo,
             self = keythereum;
         keyObjectCrypto = keyObject.Crypto || keyObject.crypto;
+
         function verifyAndDecrypt(derivedKey, salt, iv, ciphertext, algo) {
             var key;
             if (self.getMAC(derivedKey, ciphertext) !== keyObjectCrypto.mac) {

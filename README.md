@@ -4,6 +4,10 @@
 如果是写到package.json里面，以git协议这么写：
 `'key-manager':git+ssh://http://luchenqun:fendoubuxi@192.168.9.66/Juzix-ethereum/key-manager.git#master`
 
+说明
+-----
+1. 大部分方法提供同步以及异步的调用。建议使用均使用异步调用。异步调用大部分回调函数均以`function(err, data1, data2, ...){}`返回，第一个参数是错误返回代码，0为正常，其他为异常。
+
 使用
 -----
 如果你在Node.js环境下面使用，先引入：
@@ -14,13 +18,14 @@
 | :------------    | :--------------------------------- |
 | username         | 用户账号                            |
 | password         | 用户密码                            |
-| cb                | 回调函数，如果不传，那么同步调用      |
+| cb(err, keyObject) | 回调函数，如果不传，那么同步调用      |
+返回值说明：一个新的keyObject对象。
 ```JavaScript
 // 同步创建key
 var keyObject = key.createKey('lcq', '123456');
 
 // 异步创建key
-key.createKey('lcq', '123456', function(keyObject) {
+key.createKey('lcq', '123456', function(err, keyObject) {
     console.log(keyObject);
 });
 
@@ -53,11 +58,12 @@ key.createKey('lcq', '123456', function(keyObject) {
 | keyObject       | 生成的key对象，调用函数               |
 | keystore        | 导出的目录                            |
 | outfile        | 导出的文件名                            |
-| cb              | 回调函数，如果不传，那么同步调用      |
+| cb(err, outpath)  | 回调函数，如果不传，那么同步调用      |
+返回值说明：导出的文件路径outpath。
 ```JavaScript
 var keyObject = key.createKey('lcq', '123456');
 // 异步导出
-key.exportToFile(keyObject, './keystore', 'xxxxx.json', function(outpath){
+key.exportToFile(keyObject, './keystore', 'lcq.json', function(err, outpath){
     console.log(outpath);
 });
 ```
@@ -67,9 +73,10 @@ key.exportToFile(keyObject, './keystore', 'xxxxx.json', function(outpath){
 | :------------   | :--------------------------------- |
 | username       | 用户名               |
 | datadir        | 导入的目录                            |
-| cb              | 回调函数，如果不传，那么同步调用      |
+| cbfunction(err, keyObject)  | 回调函数，如果不传，那么同步调用      |
+返回值说明：用户对应的keyObject。
 ```JavaScript
-key.importFromFile('lcq', './keystore', function(keyObject){
+key.importFromFile('lcq', './keystore', function(err, keyObject){
     console.log(keyObject);
 });
 ```
@@ -78,9 +85,10 @@ key.importFromFile('lcq', './keystore', function(keyObject){
 |     参数      |             说明                   |
 | :------------   | :--------------------------------- |
 | keystore       | 目录名               |
-| cb              | 回调函数，如果不传，那么同步调用      |
+| cbfunction(err, keyObjects) | 回调函数，如果不传，那么同步调用      |
+返回值说明：该目录下面的所有keyObjects，为数组对象。
 ```JavaScript
-key.importFromDir('./keystore', function(keyObjects){
+key.importFromDir('./keystore', function(err, keyObjects){
     console.log(keyObjects);
 });
 ```
@@ -91,10 +99,11 @@ key.importFromDir('./keystore', function(keyObjects){
 | oldPassword       | 旧密码               |
 | newPassword       | 新密码               |
 | keyObject       | 旧key               |
-| cb              | 回调函数，如果不传，那么同步调用      |
+| cb(err, newKeyObject)   | 回调函数，如果不传，那么同步调用      |
+返回值说明：根据用户新密码产生的新newKeyObject。
 ```JavaScript
 var keyObject = key.createKey('lcq', '123456');
-key.resetPassword('123456', '654321', keyObject, function(newKeyObject){
+key.resetPassword('123456', '654321', keyObject, function(err, newKeyObject){
     console.log(newKeyObject);
 });
 ```
@@ -104,10 +113,11 @@ key.resetPassword('123456', '654321', keyObject, function(newKeyObject){
 | :------------   | :--------------------------------- |
 | password       | 密码               |
 | keyObject       | key               |
-| cb              | 回调函数，如果不传，那么同步调用      |
+| cb(err, privateKey) | 回调函数，如果不传，那么同步调用      |
+返回值说明：用户的私钥。
 ```JavaScript
 var keyObject = key.createKey('lcq', '123456');
-key.recover('123456', keyObject, function(privateKey){
+key.recover('123456', keyObject, function(err, privateKey){
     console.log(privateKey);
 });
 ```

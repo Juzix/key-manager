@@ -164,11 +164,9 @@ module.exports = {
             }
         });
     },
-    importFromFileName: function (fileName, keystore, cb) {
+    importFromFilePath: function (filepath, keystore, cb) {
         if (this.browser)
             throw new Error("method only available in Node.js");
-        keystore = keystore || DEFAULT_PATH;
-        var filepath = path.join(keystore, fileName);
         var fileExist = fs.existsSync(filepath);
 
         if (!isFunction(cb)) {
@@ -305,7 +303,7 @@ module.exports = {
     },
 
     // 获取公钥
-    getPublicKey: function (keyObject, cb) {
+    getPublicKey: function (privateKey, cb) {
         var err = 0;
         var publicKey = null;
         if (isFunction(cb)) {

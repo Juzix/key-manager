@@ -130,14 +130,14 @@ key.recover('123456', keyObject, function(err, privateKey){
 });
 ```
 
-### 7 获取key的公钥
+### 7 根据私钥获取公钥
 |     参数      |             说明                   |
 | :------------   | :--------------------------------- |
-| keyObject       | key               |
+| privateKey       | 私钥               |
 | cb(err, publicKey) | 回调函数，如果不传，那么同步调用      |
 返回值说明：用户的私钥。
 ```JavaScript
-key.getPublicKey(keyObject, function(err, publicKey){
+key.getPublicKey(privateKey, function(err, publicKey){
     console.log(publicKey);
 });
 ```
@@ -157,12 +157,11 @@ key.getGroupPrivateKey(keyObject, function(err, groupPrivateKey){
 ### 9 根据文件名字，获取对应的keyObject
 |     参数      |             说明                   |
 | :------------   | :--------------------------------- |
-| fileName       | 文件名               |
-| keystore       | 文件所在目录路径               |
+| filePath       | 文件路径               |
 | cb(err, keyObject) | 回调函数，如果不传，那么同步调用      |
 返回值说明：文件名对应的keyObject。
 ```JavaScript
-key.importFromFileName('lcq.json', DEFAULT_PATH, function(err, keyObject){
+key.importFromFilePath(filePath, function(err, keyObject){
     console.log(keyObject);
 });
 ```
@@ -175,7 +174,7 @@ key.importFromFileName('lcq.json', DEFAULT_PATH, function(err, keyObject){
 | cb(err, files) | 回调函数，如果不传，那么同步调用      |
 返回值说明：导入成功的文件名。
 ```JavaScript
-key.restoreKeys('lcq.json', DEFAULT_PATH, function(err, files){
+key.restoreKeys('C:/Users/lcq/Desktop/keys', DEFAULT_PATH, function(err, files){
     console.log(files);
 });
 ```

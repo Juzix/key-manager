@@ -13,6 +13,7 @@
   "author": "luchenqun",
   "license": "ISC",
   "dependencies": {
+    "ethereumjs-util": "^5.1.2",
     "keythereum": "^1.0.2"
   }
 }

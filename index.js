@@ -3,6 +3,7 @@ var path = require("path");
 var fs = require("fs");
 var createKeccakHash = require("keccak/js");
 var os = require('os');
+var secp256k1 = require("secp256k1/elliptic");
 
 var params = {
     keyBytes: 32,
@@ -100,37 +101,49 @@ module.exports = {
         outpath = path.join(keystore, outfile);
         json = JSON.stringify(keyObject, null, 4);
 
+        var fileExist = fs.existsSync(outpath);
+
         if (this.browser)
             throw new Error("method only available in Node.js");
 
         if (!isFunction(cb)) {
-            fs.writeFileSync(outpath, json);
-            return outpath;
-        }
-        fs.exists(keystore, function (exists) {
-            if (exists) {
-                fs.writeFile(outpath, json, function (ex) {
-                    if (ex) {
-                        err = 1;
-                        outpath = null;
-                    }
-                    cb(err, outpath);
-                });
+            if (!fileExist) {
+                fs.writeFileSync(outpath, json);
+                return outpath;
             } else {
-                fs.mkdir(keystore, function () {
-                    fs.writeFile(outpath, json, function (ex) {
-                        if (ex) {
-                            err = 1;
-                            outpath = null;
-                        }
-                        cb(err, outpath);
-                    });
+                return null;
+            }
+        } else {
+            if (fileExist) {
+                err = 2;
+                cb(err, null);
+            } else {
+                fs.exists(keystore, function (exists) {
+                    if (exists) {
+                        fs.writeFile(outpath, json, function (ex) {
+                            if (ex) {
+                                err = 1;
+                                outpath = null;
+                            }
+                            cb(err, outpath);
+                        });
+                    } else {
+                        fs.mkdir(keystore, function () {
+                            fs.writeFile(outpath, json, function (ex) {
+                                if (ex) {
+                                    err = 1;
+                                    outpath = null;
+                                }
+                                cb(err, outpath);
+                            });
+                        });
+                    }
                 });
             }
-        });
+        }
     },
     // 通过用户名，目录找到对应的key
-    importFromFile: function (username, keystore, cb) {
+    importFromUsername: function (username, keystore, cb) {
         var filepath;
         function findKeyfile(keystore, username, files) {
             var len = files.length;
@@ -164,7 +177,8 @@ module.exports = {
             }
         });
     },
-    importFromFilePath: function (filepath, keystore, cb) {
+    // 通过路径，找到对应的key
+    importFromFilePath: function (filepath, cb) {
         if (this.browser)
             throw new Error("method only available in Node.js");
         var fileExist = fs.existsSync(filepath);
@@ -260,6 +274,7 @@ module.exports = {
     recover: function (password, keyObject, cb) {
         var keyObjectCrypto, iv, salt, ciphertext, algo;
         var self = keythereum;
+        var privateKey = '';
         keyObjectCrypto = keyObject.Crypto || keyObject.crypto;
 
         function verifyAndDecrypt(derivedKey, salt, iv, ciphertext, algo) {
@@ -289,13 +304,19 @@ module.exports = {
         }
 
         if (!isFunction(cb)) {
-            return verifyAndDecrypt(self.deriveKey(password, salt, keyObjectCrypto), salt, iv, ciphertext, algo);
+            privateKey = verifyAndDecrypt(self.deriveKey(password, salt, keyObjectCrypto), salt, iv, ciphertext, algo);
+            if (privateKey) {
+                privateKey = privateKey.toString('hex');
+            }
+            return privateKey;
         } else {
             self.deriveKey(password, salt, keyObjectCrypto, function (derivedKey) {
                 var err = 0;
-                var privateKey = verifyAndDecrypt(derivedKey, salt, iv, ciphertext, algo);
+                privateKey = verifyAndDecrypt(derivedKey, salt, iv, ciphertext, algo);
                 if (!privateKey) {
                     err = 1;
+                } else {
+                    privateKey = privateKey.toString('hex');
                 }
                 cb(err, privateKey);
             });
@@ -305,7 +326,18 @@ module.exports = {
     // 获取公钥
     getPublicKey: function (privateKey, cb) {
         var err = 0;
+        if (typeof privateKey == 'string' && privateKey.constructor == String) {
+            privateKey = Buffer.from(privateKey, 'hex');
+        }
         var publicKey = null;
+        try {
+            publicKey = secp256k1.publicKeyCreate(privateKey, false).slice(1);
+        } catch (e) {
+            err = 1;
+        }
+        if (publicKey) {
+            publicKey = publicKey.toString('hex');
+        }
         if (isFunction(cb)) {
             cb(err, publicKey);
         } else {
@@ -313,25 +345,62 @@ module.exports = {
         }
     },
 
-    // 获取群私钥
-    getGroupPrivateKey: function(keyObject, cb){
-        var err = 0;
-        var groupPrivateKey = null;
-        if (isFunction(cb)) {
-            cb(err, groupPrivateKey);
-        } else {
-            return groupPrivateKey;
-        }
-    },
-
     // 导入keyObjects
-    restoreKeys: function (srcPath, distPath, cb) {
+    restoreKeys: function (srcDir, distDir, cb) {
         var err = 0;
-        var files = [];
+        var copyFiles = [];
+        distDir = distDir || DEFAULT_PATH;
+
+        var srcFiles = fs.readdirSync(srcDir).filter((file) => fs.lstatSync(path.join(srcDir, file)).isFile());
+        srcFiles = srcFiles.filter((file) => file.endsWith('.json'));
+
+        var copyCount = 0;
+
         if (isFunction(cb)) {
-            cb(err, files);
+            srcFiles.forEach((file) => {
+                var srcFilePath = path.join(srcDir, file);
+                var distFilePath = path.join(distDir, file);
+                if(!fs.existsSync(distFilePath)){
+                    fs.readFile(srcFilePath, (err, data) => {
+                        if (!err){
+                            fs.writeFile(distFilePath, data, function (ex) {
+                                copyCount++;
+                                if (!ex) {
+                                    copyFiles.push(file);
+                                }
+                                if(copyCount == srcFiles.length){
+                                    cb(0, copyFiles);
+                                }
+                            });
+                        } else {
+                            copyCount++;
+                            if(copyCount == srcFiles.length){
+                                cb(0, copyFiles);
+                            }
+                        };
+                    });
+                } else {
+                    copyCount++;
+                    if(copyCount == srcFiles.length){
+                        cb(0, copyFiles);
+                    }
+                }
+            })
         } else {
-            return files;
+            srcFiles.forEach((file) => {
+                var srcFilePath = path.join(srcDir, file);
+                var distFilePath = path.join(distDir, file);
+                if(!fs.existsSync(filePath)){
+                    try {
+                        var data = fs.readFileSync(srcFilePath);
+                        fs.writeFileSync(distFilePath, data);
+                        copyFiles.push(file);
+                    } catch (e) {
+    
+                    }
+                }
+            })
+            return copyFiles;
         }
     }
 }

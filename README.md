@@ -76,15 +76,15 @@ key.exportToFile(keyObject, DEFAULT_PATH, 'lcq.json', function(err, outpath){
 });
 ```
 
-### 3 根据用户名导入key
+### 3 根据用户名导出key
 |     参数      |             说明                   |
 | :------------   | :--------------------------------- |
 | username       | 用户名               |
-| datadir        | 导入的目录                            |
+| keystore        | 目录路径                            |
 | cbfunction(err, keyObject)  | 回调函数，如果不传，那么同步调用      |
 返回值说明：用户对应的keyObject。
 ```JavaScript
-key.importFromFile('lcq', DEFAULT_PATH, function(err, keyObject){
+key.importFromUsername('lcq', DEFAULT_PATH, function(err, keyObject){
     console.log(keyObject);
 });
 ```
@@ -122,7 +122,7 @@ key.resetPassword('123456', '654321', keyObject, function(err, newKeyObject){
 | password       | 密码               |
 | keyObject       | key               |
 | cb(err, privateKey) | 回调函数，如果不传，那么同步调用      |
-返回值说明：用户的私钥。
+返回值说明：用户的私钥。类型为string。
 ```JavaScript
 var keyObject = key.createKey('lcq', '123456');
 key.recover('123456', keyObject, function(err, privateKey){
@@ -135,26 +135,14 @@ key.recover('123456', keyObject, function(err, privateKey){
 | :------------   | :--------------------------------- |
 | privateKey       | 私钥               |
 | cb(err, publicKey) | 回调函数，如果不传，那么同步调用      |
-返回值说明：用户的私钥。
+返回值说明：用户的公钥。类型为string。
 ```JavaScript
 key.getPublicKey(privateKey, function(err, publicKey){
     console.log(publicKey);
 });
 ```
 
-### 8 获取群私钥
-|     参数      |             说明                   |
-| :------------   | :--------------------------------- |
-| keyObject       | key               |
-| cb(err, groupPrivateKey) | 回调函数，如果不传，那么同步调用      |
-返回值说明：用户的群私钥。
-```JavaScript
-key.getGroupPrivateKey(keyObject, function(err, groupPrivateKey){
-    console.log(groupPrivateKey);
-});
-```
-
-### 9 根据文件名字，获取对应的keyObject
+### 8 根据文件名字，获取对应的keyObject
 |     参数      |             说明                   |
 | :------------   | :--------------------------------- |
 | filePath       | 文件路径               |
@@ -166,15 +154,15 @@ key.importFromFilePath(filePath, function(err, keyObject){
 });
 ```
 
-### 10 导入keyObjects
+### 9 导入keyObjects
 |     参数      |             说明                   |
 | :------------   | :--------------------------------- |
-| srcPath       | 原目录               |
-| distPath       | 目标目录               |
+| srcDir       | 原目录               |
+| distDir       | 目标目录               |
 | cb(err, files) | 回调函数，如果不传，那么同步调用      |
-返回值说明：导入成功的文件名。
+返回值说明：导入成功的文件名。注意，只导入当前目录下面的文件后缀为.json文件，同时不会去导入该目录下面的子目录。
 ```JavaScript
 key.restoreKeys('C:/Users/lcq/Desktop/keys', DEFAULT_PATH, function(err, files){
-    console.log(files);
+    console.log(err, files);
 });
 ```

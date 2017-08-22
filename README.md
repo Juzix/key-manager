@@ -82,7 +82,7 @@ key.exportToFile(keyObject, DEFAULT_PATH, 'lcq.json', function(err, outpath){
 | :------------   | :--------------------------------- |
 | username       | 用户名               |
 | keystore        | 目录路径                            |
-| cbfunction(err, keyObject)  | 回调函数，如果不传，那么同步调用      |
+| cb(err, keyObject)  | 回调函数，如果不传，那么同步调用      |
 返回值说明：用户对应的keyObject。
 ```JavaScript
 key.importFromUsername('lcq', DEFAULT_PATH, function(err, keyObject){
@@ -94,7 +94,7 @@ key.importFromUsername('lcq', DEFAULT_PATH, function(err, keyObject){
 |     参数      |             说明                   |
 | :------------   | :--------------------------------- |
 | keystore       | 目录名               |
-| cbfunction(err, keyObjects) | 回调函数，如果不传，那么同步调用      |
+| cb(err, keyObjects) | 回调函数，如果不传，那么同步调用      |
 返回值说明：该目录下面的所有keyObjects，为数组对象。
 ```JavaScript
 key.importFromDir(DEFAULT_PATH, function(err, keyObjects){

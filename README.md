@@ -12,6 +12,14 @@
 -----
 如果你在Node.js环境下面使用，先引入：
 `var keyManager = require("key-manager");`   
+所有的的文件默认存在DEFAULT_PATH下面，获取方式如下。即当前用户的home目录的keystores下面。下面示例代码的DEFAULT_PATH也是来自如此。
+```JavaScript
+var fs = require("fs");
+var path = require("path");
+var os = require('os');
+const DEFAULT_PATH = path.join(os.homedir(), 'keystores');
+```   
+
 常用方法使用示例如下：   
 #### 1 创建key
 |     参数       |             说明                   |
@@ -63,7 +71,7 @@ key.createKey('lcq', '123456', function(err, keyObject) {
 ```JavaScript
 var keyObject = key.createKey('lcq', '123456');
 // 异步导出
-key.exportToFile(keyObject, './keystore', 'lcq.json', function(err, outpath){
+key.exportToFile(keyObject, DEFAULT_PATH, 'lcq.json', function(err, outpath){
     console.log(outpath);
 });
 ```
@@ -76,7 +84,7 @@ key.exportToFile(keyObject, './keystore', 'lcq.json', function(err, outpath){
 | cbfunction(err, keyObject)  | 回调函数，如果不传，那么同步调用      |
 返回值说明：用户对应的keyObject。
 ```JavaScript
-key.importFromFile('lcq', './keystore', function(err, keyObject){
+key.importFromFile('lcq', DEFAULT_PATH, function(err, keyObject){
     console.log(keyObject);
 });
 ```
@@ -88,7 +96,7 @@ key.importFromFile('lcq', './keystore', function(err, keyObject){
 | cbfunction(err, keyObjects) | 回调函数，如果不传，那么同步调用      |
 返回值说明：该目录下面的所有keyObjects，为数组对象。
 ```JavaScript
-key.importFromDir('./keystore', function(err, keyObjects){
+key.importFromDir(DEFAULT_PATH, function(err, keyObjects){
     console.log(keyObjects);
 });
 ```
@@ -121,6 +129,7 @@ key.recover('123456', keyObject, function(err, privateKey){
     console.log(privateKey);
 });
 ```
+
 ### 7 获取key的公钥
 |     参数      |             说明                   |
 | :------------   | :--------------------------------- |
@@ -130,5 +139,43 @@ key.recover('123456', keyObject, function(err, privateKey){
 ```JavaScript
 key.getPublicKey(keyObject, function(err, publicKey){
     console.log(publicKey);
+});
+```
+
+### 8 获取群私钥
+|     参数      |             说明                   |
+| :------------   | :--------------------------------- |
+| keyObject       | key               |
+| cb(err, groupPrivateKey) | 回调函数，如果不传，那么同步调用      |
+返回值说明：用户的群私钥。
+```JavaScript
+key.getGroupPrivateKey(keyObject, function(err, groupPrivateKey){
+    console.log(groupPrivateKey);
+});
+```
+
+### 9 根据文件名字，获取对应的keyObject
+|     参数      |             说明                   |
+| :------------   | :--------------------------------- |
+| fileName       | 文件名               |
+| keystore       | 文件所在目录路径               |
+| cb(err, keyObject) | 回调函数，如果不传，那么同步调用      |
+返回值说明：文件名对应的keyObject。
+```JavaScript
+key.importFromFileName('lcq.json', DEFAULT_PATH, function(err, keyObject){
+    console.log(keyObject);
+});
+```
+
+### 10 导入keyObjects
+|     参数      |             说明                   |
+| :------------   | :--------------------------------- |
+| srcPath       | 原目录               |
+| distPath       | 目标目录               |
+| cb(err, files) | 回调函数，如果不传，那么同步调用      |
+返回值说明：导入成功的文件名。
+```JavaScript
+key.restoreKeys('lcq.json', DEFAULT_PATH, function(err, files){
+    console.log(files);
 });
 ```

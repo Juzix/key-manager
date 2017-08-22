@@ -2,6 +2,7 @@ var keythereum = require("keythereum");
 var path = require("path");
 var fs = require("fs");
 var createKeccakHash = require("keccak/js");
+var os = require('os');
 
 var params = {
     keyBytes: 32,
@@ -18,7 +19,7 @@ var options = {
     }
 };
 
-var defaultPath = './keystore'
+const DEFAULT_PATH = path.join(os.homedir(), 'keystores');
 
 function keccak256(buffer) {
     return createKeccakHash("keccak256").update(buffer).digest();
@@ -30,22 +31,22 @@ function isFunction(f) {
 
 module.exports = {
     browser: typeof process === "undefined" || !process.nextTick || Boolean(process.browser),
-    setParams: function(_params) {
+    setParams: function (_params) {
         params = _params;
     },
-    getParams: function() {
+    getParams: function () {
         return params;
     },
-    setOption: function(_options) {
+    setOption: function (_options) {
         options = _options;
     },
-    getOption: function() {
+    getOption: function () {
         return options;
     },
-    createDk: function(cb) {
+    createDk: function (cb) {
         err = 0;
         if (isFunction(cb)) {
-            keythereum.create(this.getParams(), function(dk) {
+            keythereum.create(this.getParams(), function (dk) {
                 if (!dk) {
                     err = 1;
                 }
@@ -56,25 +57,24 @@ module.exports = {
             return dk;
         }
     },
-    generateKeystoreFilename: function(keyObject) {
-        var username = keyObject.id;
-        var address = keyObject.address;
-        var filename = address + "_" + username;
-        filename = username;
-        filename += '.json';
+    // 获取key的文件名
+    generateKeystoreFilename: function (keyObject) {
+        var now = new Date().getTime().toString();
+        filename = (keyObject.username || now) + '.json';
 
         return filename;
     },
-    createKey: function(username, password, cb) {
+    // 创建key
+    createKey: function (username, password, cb) {
         var options = this.getOption();
         var err = 0;
         if (isFunction(cb)) {
-            this.createDk(function(_err, dk) {
+            this.createDk(function (_err, dk) {
                 err = _err;
                 if (!err) {
-                    keythereum.dump(password, dk.privateKey, dk.salt, dk.iv, options, function(keyObject) {
+                    keythereum.dump(password, dk.privateKey, dk.salt, dk.iv, options, function (keyObject) {
                         if (keyObject) {
-                            keyObject.id = username;
+                            keyObject.username = username;
                         } else {
                             err = 2;
                         }
@@ -83,22 +83,19 @@ module.exports = {
                 } else {
                     cb(err, keyObject);
                 }
-
             })
         } else {
             var dk = this.createDk();
             var keyObject = keythereum.dump(password, dk.privateKey, dk.salt, dk.iv, options);
-            keyObject.id = username;
+            keyObject.username = username;
             return keyObject;
         }
     },
-    exportToFile: function(keyObject, keystore, outfile, cb) {
-        var outfile,
-            outpath,
-            json;
+    // 导出key到文件
+    exportToFile: function (keyObject, keystore, outfile, cb) {
+        var outfile, outpath, json;
         var err = 0;
-        keystore = keystore || defaultPath;
-        // keystore = path.join(__dirname, keystore);
+        keystore = keystore || DEFAULT_PATH;
         outfile = outfile || this.generateKeystoreFilename(keyObject);
         outpath = path.join(keystore, outfile);
         json = JSON.stringify(keyObject, null, 4);
@@ -110,10 +107,9 @@ module.exports = {
             fs.writeFileSync(outpath, json);
             return outpath;
         }
-        fs.exists(keystore, function(exists) {
-            console.log(keystore);
+        fs.exists(keystore, function (exists) {
             if (exists) {
-                fs.writeFile(outpath, json, function(ex) {
+                fs.writeFile(outpath, json, function (ex) {
                     if (ex) {
                         err = 1;
                         outpath = null;
@@ -121,8 +117,8 @@ module.exports = {
                     cb(err, outpath);
                 });
             } else {
-                fs.mkdir(keystore, function() {
-                    fs.writeFile(outpath, json, function(ex) {
+                fs.mkdir(keystore, function () {
+                    fs.writeFile(outpath, json, function (ex) {
                         if (ex) {
                             err = 1;
                             outpath = null;
@@ -133,10 +129,9 @@ module.exports = {
             }
         });
     },
-    importFromFile: function(username, datadir, cb) {
-        var keystore;
+    // 通过用户名，目录找到对应的key
+    importFromFile: function (username, keystore, cb) {
         var filepath;
-
         function findKeyfile(keystore, username, files) {
             var len = files.length;
             var filepath = null;
@@ -154,58 +149,64 @@ module.exports = {
 
         if (this.browser)
             throw new Error("method only available in Node.js");
-        keystore = datadir || defaultPath
+        keystore = keystore || DEFAULT_PATH;
         if (!isFunction(cb)) {
             filepath = findKeyfile(keystore, username, fs.readdirSync(keystore));
-            if (!filepath) {
-                throw new Error("could not find key file for username " + username);
-            }
-            return JSON.parse(fs.readFileSync(filepath));
+            return filepath ? JSON.parse(fs.readFileSync(filepath)) : null;
         }
-        fs.readdir(keystore, function(ex, files) {
+        fs.readdir(keystore, function (ex, files) {
             var filepath;
-            if (ex)
-                return cb(1, null);
-            filepath = findKeyfile(keystore, username, files);
-            if (!filepath) {
-                return new Error("could not find key file for username " + username);
+            if (ex) {
+                cb(1, null);
+            } else {
+                filepath = findKeyfile(keystore, username, files);
+                filepath ? cb(0, JSON.parse(fs.readFileSync(filepath))) : cb(2, null);
             }
-            return cb(0, JSON.parse(fs.readFileSync(filepath)));
         });
     },
-    importFromDir: function(keystore, cb) {
+    importFromFileName: function (fileName, keystore, cb) {
+        if (this.browser)
+            throw new Error("method only available in Node.js");
+        keystore = keystore || DEFAULT_PATH;
+        var filepath = path.join(keystore, fileName);
+        var fileExist = fs.existsSync(filepath);
+
+        if (!isFunction(cb)) {
+            return fileExist ? JSON.parse(fs.readFileSync(filepath)) : null;
+        } else {
+            if (fileExist) {
+                fs.readFile(filepath, function (err, data) {
+                    err ? cb(2, null) : cb(0, JSON.parse(data));
+                });
+            } else {
+                cb(1, null);
+            }
+        }
+    },
+    // 获取某个目录下面的所有keys
+    importFromDir: function (keystore, cb) {
         var keyObjects = [];
-        keystore = keystore || defaultPath;
+        keystore = keystore || DEFAULT_PATH;
         if (isFunction(cb)) {
-            fs.readdir(keystore, function(err, files) {
+            fs.readdir(keystore, function (err, files) {
                 if (err || files.errno) {
                     console.log('readFile ' + keystore + ' error: ', err || files.errno);
                     cb(1, keyObjects);
                 } else {
-                    files.forEach(function(file, index) {
+                    files.forEach(function (file, index) {
                         try {
                             var data = fs.readFileSync(keystore + '/' + file);
                             var key = JSON.parse(data);
-                            key.privateKey = null;
-                            key.address = '0x' + key.address;
+                            if (!key.privateKey) {
+                                key.privateKey = null;
+                            }
+                            if (key.address && key.address.length == 40) {
+                                key.address = '0x' + key.address;
+                            }
                             keyObjects.push(key);
-                        } catch (e) {}
+                        } catch (e) {
 
-                        // console.log(file, index);
-                        // var _fs = require("fs");
-                        // _fs.readFile(keystore + '/' + file, function(err, data) {
-                        //     if (!err) {
-                        //         var key = JSON.parse(data);
-                        //         key.privateKey = null;
-                        //         key.address = '0x' + key.address;
-                        //         keyObjects.push(key);
-                        //     } else {
-                        //         console.log('importFromDir' , err);
-                        //     }
-                        //     if (index + 1 >= files.length) {
-                        //         cb(0, keyObjects);
-                        //     }
-                        // });
+                        }
                     });
                     cb(0, keyObjects);
                 }
@@ -213,27 +214,30 @@ module.exports = {
         } else {
             var files = fs.readdirSync(keystore);
             var fileCount = files.length;
-            files.forEach(function(file, index) {
+            files.forEach(function (file, index) {
                 try {
                     var data = fs.readFileSync(keystore + '/' + file);
                     var key = JSON.parse(data);
                     key.privateKey = null;
                     key.address = '0x' + key.address;
                     keyObjects.push(key);
-                } catch (e) {}
+                } catch (e) {
+
+                }
             });
             return keyObjects;
         }
     },
-    resetPassword: function(oldPassword, newPassword, keyObject, cb) {
+    // 重置key
+    resetPassword: function (oldPassword, newPassword, keyObject, cb) {
         var newKeyObject = null;
         var self = this;
         if (isFunction(cb)) {
-            self.recover(oldPassword, keyObject, function(err, privateKey) {
+            self.recover(oldPassword, keyObject, function (err, privateKey) {
                 if (privateKey) {
-                    self.createDk(function(err, dk) {
+                    self.createDk(function (err, dk) {
                         if (dk) {
-                            self.createKey(keyObject.id, newPassword, function(err, keyObject) {
+                            self.createKey(keyObject.username, newPassword, function (err, keyObject) {
                                 newKeyObject = keyObject
                                 cb(err, newKeyObject);
                             })
@@ -249,18 +253,15 @@ module.exports = {
             var privateKey = this.recover(oldPassword, keyObject);
             if (privateKey) {
                 var dk = this.createDk();
-                newKeyObject = this.createKey(keyObject.id, newPassword);
+                newKeyObject = this.createKey(keyObject.username, newPassword);
             }
             return newKeyObject;
         }
     },
-    recover: function(password, keyObject, cb) {
-        var keyObjectCrypto,
-            iv,
-            salt,
-            ciphertext,
-            algo,
-            self = keythereum;
+    // 获取私钥privateKey
+    recover: function (password, keyObject, cb) {
+        var keyObjectCrypto, iv, salt, ciphertext, algo;
+        var self = keythereum;
         keyObjectCrypto = keyObject.Crypto || keyObject.crypto;
 
         function verifyAndDecrypt(derivedKey, salt, iv, ciphertext, algo) {
@@ -282,30 +283,51 @@ module.exports = {
         algo = keyObjectCrypto.cipher;
 
         if (keyObjectCrypto.kdf === "pbkdf2" && keyObjectCrypto.kdfparams.prf !== "hmac-sha256") {
-            throw new Error("PBKDF2 only supported with HMAC-SHA256");
+            if (!isFunction(cb)) {
+                return null;
+            } else {
+                cb(2, null);
+            }
         }
 
         if (!isFunction(cb)) {
             return verifyAndDecrypt(self.deriveKey(password, salt, keyObjectCrypto), salt, iv, ciphertext, algo);
+        } else {
+            self.deriveKey(password, salt, keyObjectCrypto, function (derivedKey) {
+                var err = 0;
+                var privateKey = verifyAndDecrypt(derivedKey, salt, iv, ciphertext, algo);
+                if (!privateKey) {
+                    err = 1;
+                }
+                cb(err, privateKey);
+            });
         }
-        self.deriveKey(password, salt, keyObjectCrypto, function(derivedKey) {
-            var err = 0;
-            var privateKey = verifyAndDecrypt(derivedKey, salt, iv, ciphertext, algo);
-            if (!privateKey) {
-                err = 1;
-            }
-            cb(err, privateKey);
-        });
     },
-    getPublicKey: function(keyObject, cb){
+
+    // 获取公钥
+    getPublicKey: function (keyObject, cb) {
         var err = 0;
         var publicKey = null;
         if (isFunction(cb)) {
             cb(err, publicKey);
+        } else {
+            return publicKey;
         }
-        return publicKey;
     },
-    restoreKeys: function(src, dist, cb){
+
+    // 获取群私钥
+    getGroupPrivateKey: function(keyObject, cb){
+        var err = 0;
+        var groupPrivateKey = null;
+        if (isFunction(cb)) {
+            cb(err, groupPrivateKey);
+        } else {
+            return groupPrivateKey;
+        }
+    },
+
+    // 导入keyObjects
+    restoreKeys: function (srcPath, distPath, cb) {
         var err = 0;
         var files = [];
         if (isFunction(cb)) {

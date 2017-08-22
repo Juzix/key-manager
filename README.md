@@ -39,24 +39,25 @@ key.createKey('lcq', '123456', function(err, keyObject) {
 
 创建出来的key对象类似如下
 {
-    "address":"f268ae4b262baed1e1a265dc6af46b6f496535ba",
+    "address":"2f10359548470362201e13ea11f64cee0fd0cfbf",
     "crypto":{
         "cipher":"aes-128-ctr",
-        "ciphertext":"27a21f8d8e94b17a95d769b4451ed513be11c5ca9fa32b37cc4cee463c9b9705",
+        "ciphertext":"232c3f5f29b522aa1581087906bf4bcd2fd2d56cb5b26fef1ce51d40ec1788d4",
         "cipherparams":{
-            "iv":"45fa7893a1574f4928fa237d0e13e19c"
+            "iv":"79734181aacfe629d84d575860ffb426"
         },
-        "mac":"b0c5e6626f1b6036c8ad86960d441f64967ad894750c726a5c8615dd3facbcc5",
+        "mac":"6de93cc426ed67840d98b246d83e3dcebbd09b77fdc062a750278e00b5844d92",
         "kdf":"pbkdf2",
         "kdfparams":{
             "c":262144,
             "dklen":32,
             "prf":"hmac-sha256",
-            "salt":"b865ddff48a195f78ab299e022430a558daa48fd71da24de3b3da55b034d811b"
+            "salt":"e3846591d0b83c211b384ad4a9db4116aa9bfd0dada7fbd36edd27acf4a275f4"
         }
     },
-    "id":"lcq",
-    "version":3
+    "id":"5c3eb953-bc5c-4512-ad0b-a8365a7ec414",
+    "version":3,
+    "username":"lcq"
 }
 ```
 
@@ -142,7 +143,7 @@ key.getPublicKey(privateKey, function(err, publicKey){
 });
 ```
 
-### 8 根据文件名字，获取对应的keyObject
+### 8 根据文件路径，获取对应的keyObject
 |     参数      |             说明                   |
 | :------------   | :--------------------------------- |
 | filePath       | 文件路径               |

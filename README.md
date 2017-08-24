@@ -6,12 +6,13 @@
 
 说明
 -----
-1. 大部分方法提供同步以及异步的调用。建议使用均使用异步调用。异步调用大部分回调函数均以`function(err, data1, data2, ...){}`返回，第一个参数是错误返回代码，0为正常，其他为异常。
+1. 大部分文件方法提供同步以及异步的调用。建议使用均使用异步调用。异步调用大部分回调函数均以`function(err, data1, data2, ...){}`返回，第一个参数是错误返回代码，0为正常，其他为异常。
+2. 所有ukey的调用函数均为ukey开头，用来区分与文件证书的函数接口。
 
 使用
 -----
 如果你在Node.js环境下面使用，先引入：
-`var keyManager = require("key-manager");`   
+`var key = require("key-manager");`   
 所有的的文件默认存在DEFAULT_PATH下面，获取方式如下。即当前用户的home目录的keystores下面。下面示例代码的DEFAULT_PATH也是来自如此。
 ```JavaScript
 var fs = require("fs");
@@ -20,7 +21,26 @@ var os = require('os');
 const DEFAULT_PATH = path.join(os.homedir(), 'keystores');
 ```   
 
-常用方法使用示例如下：   
+所有的ukey方法由于提供的动态库均是同步调用。为了跟文件证书的调用保持一致。提供同步与异步的调用。异步调用回调函数均以`function(err, ret){}`返回。第一个参数是错误返回代码，0为正常，-100为系统无法调用ukey提供的动态库(比如在Ubuntu下调用)，其它代码为ukey厂商提供的。`ret`为一个对象，下面以调用RSA加密函数说明，演示函数的调用以及返回值。其他调用均与此类似，不再做说明。建议使用者均使用回调的方式调用。示例如下：
+```JavaScript
+var key = require("key-manager");
+
+var pbData = 'i love this world';
+var ret1 = key.ukeyRSAEncrypt(pbData, function(err, ret2){
+    // err 为返回的错误码。
+    // ret2 为回调函数里面的返回对象，类似如下：
+    //{
+    //   err: 0,
+    //   pbCipher:'4b608752d8e48cf...'
+    //}
+    // 特此说明：对于回调函数第一个参数返回了err，返回的第二个对象还有err属性主要是为了同步返回的对象需要一个err。
+})
+// ret1 为同步调用返回的值，与异步调用里面的ret2的值是一样的。当然，如果想同步调用，回调函数可以省略不写，类似这样如下:
+var ret1 = key.ukeyRSAEncrypt(pbData);
+```   
+
+文件证书常用方法说明 
+--------------------------  
 #### 1 创建key
 |     参数       |             说明                   |
 | :------------    | :--------------------------------- |
@@ -167,3 +187,208 @@ key.restoreKeys('C:/Users/lcq/Desktop/keys', DEFAULT_PATH, function(err, files){
     console.log(err, files);
 });
 ```
+
+ukey常用方法说明 
+--------------------------
+关于`入参`与`出参`的说明：如果有入参，则按照入参的描述，依次传入参数，最后传入回调函数。如果入参描述`无`，则只需要传入回调函数。如果出参描述`无`，则可在同步调用返回的对象，或者异步调用返回的对象里面只有err属性，如果有出参描述，则可在返回的对象里面找到该属性对应的值。若函数无特别说明，ukey的函数调用均遵守此规则！
+### 01 创建USBKEY设备上下文并打开USBKEY设备
+函数名称：**`ukeyOpenDevice`**   
+入参：
+* 无  
+
+出参：
+* 无
+
+### 02 关闭USBKEY设备，并释放设备上下文
+函数名称：**`ukeyCloseDevice`**   
+入参：
+* 无  
+
+出参：
+* 无
+
+### 03 验证用户口令
+函数名称：**`ukeyVerifyPin`**   
+入参：
+* `pbUserPin`: 用户PIN   
+
+出参：
+* 无
+
+### 04 在USBKEY中生成指定类型的密钥对
+函数名称：**`ukeyRSAGenKey`**   
+入参：
+* 无  
+
+出参：
+* 无
+
+### 05 在USBKEY中生成指定类型的密钥对
+函数名称：**`ukeyECCGenKey`**   
+入参：
+* 无  
+
+出参：
+* 无
+
+### 06 导出指定密钥类型的公钥
+函数名称：**`ukeyRSAGetPubKey`**   
+入参：
+* 无 
+
+出参：
+* `pbPubKey`: 生成的用户公钥
+
+### 07 导出指定密钥类型的公钥
+函数名称：**`ukeyECCGetPubKey`**   
+入参：
+* 无 
+
+出参：
+* `pbPubKey`: 生成的用户公钥
+
+### 08 导入RSA2048证书到USBKEY中。证书编码格式为PEM或者DER
+函数名称：**`ukeyImportRSACert`**   
+入参：
+* `pbCert`: 证书数据(其实是证书路径)   
+
+出参：
+* 无
+
+### 09 导出RSA2048证书。证书编码格式为PEM
+函数名称：**`ukeyExPortRSACert`**   
+入参：
+* 无  
+
+出参：
+* `pbCert`: 证书数据
+
+### 10 RSA加密
+函数名称：**`ukeyRSAEncrypt`**   
+入参：
+* `pbData`: 明文数据   
+
+出参：
+* `pbCipher`: 密文
+
+### 11 支持RSA2048密钥对签名
+函数名称：**`ukeyRSASign`**   
+入参：
+* `dwHashAlg`: Hash算法，MD5:1,SHA1:2,SHA256:3,SHA3:4   
+* `pbData`: 待签名消息数据   
+
+出参：
+* `pbSign`: 签名值
+
+### 12 支持ECDSA签名
+函数名称：**`ukeyECCSign`**   
+入参：
+* `pbMsgRlp`: 待签名消息数据   
+
+出参：
+* `pbSignRlp`: 签名值
+
+### 13 支持RSA2048密钥对验签
+函数名称：**`ukeyRSAVerifySign`**   
+入参：
+* `dwHashAlg`: Hash算法，MD5:1,SHA1:2,SHA256:3,SHA3:4   
+* `pbData`: 待签名消息数据   
+* `pbSign`: 签名值   
+
+出参：
+* 无
+
+### 14 支持ECC验签
+函数名称：**`ukeyECCVerifySign`**   
+入参：
+* `pbSignRlp`: 签名值   
+
+出参：
+* 无
+
+### 15 根据广播加密算法机制对数据进行加密
+函数名称：**`ukeyEnc`**   
+入参：
+* `pbMessage`: 待加密的明文数据   
+* `dwGroupNum`: 群成员个数（小于100）   
+* `pbGroup_PubKey`: 群成员公钥（长度nGroupNum*Point_Len）   
+
+出参：
+* `pbCipherText`: 密文
+
+### 16 ECC广播解密
+函数名称：**`ukeyDec`**   
+入参：
+* `pbCipherText`: 密文数据   
+* `dwGroupNum`: 群成员个数（小于100）   
+
+出参：
+* `pbMessage`: 解密的明文数据
+
+### 17 判断用户私钥和系统公钥是否已导入
+函数名称：**`ukeyCheckKeyPair`**   
+入参：
+* 无
+
+出参：
+* 无
+
+### 18 导入群签名系统公钥
+函数名称：**`ukeyImportMPubKey`**   
+入参：
+* `pbMPubKey`: 群签名系统公钥   
+
+出参：
+* 无
+
+### 19 导入群签名用户私钥
+函数名称：**`ukeyImportUPriKey`**   
+入参：
+* `pbUPriKey`: 群签名用户私钥   
+
+出参：
+* 无
+
+### 20 群签名
+函数名称：**`ukeyGSSign`**   
+入参：
+* `pbHash`: 签名消息的摘要   
+
+出参：
+* `pbSign`: 签名值
+
+### 21 群签名验签
+函数名称：**`ukeyGSVerify`**   
+入参：
+* `pbHash`: 签名消息的摘要   
+* `pbSign`: 签名值   
+
+出参：
+* 无
+
+### 22 交易隐私保护接口：即以交易为输入，先对交易进行ECDSA签名，再对整个数据和签名进行广播加密，最后对整个密文进行群签名作为输出
+函数名称：**`ukeyTradeSignProtect`**   
+入参：
+* `pbMsg`: 待签名的交易数据原文   
+* `dwGroupNum`: 群成员个数（小于100）   
+* `pbGroup_PubKey`: 群成员公钥（长度nGroupNum*Point_Len）   
+
+出参：
+* `pbSign`: 签名值
+
+### 23 暂无描述，待确定
+函数名称：**`ukeyWDScardEncryptECIES`**   
+入参：
+* `pbData`: 待签名消息数据   
+
+出参：
+* `pbEncryptedData`: 加密后的数据
+
+### 24 暂无描述，待确定
+函数名称：**`ukeyWDScardDecryptECIES`**   
+入参：
+* `pbEncryptedData`: 加密后的数据   
+
+出参：
+* `pbDecryptedData`: 原始数据
+

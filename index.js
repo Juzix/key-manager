@@ -95,7 +95,7 @@ module.exports = {
     },
     // 03 J_BC_WD_VerifyPin (IN BYTE *pbUserPin,IN DWORD dwUserPinLen)
     ukeyVerifyPin: function (pbUserPin, cb) {
-        var dwUserPinLen = pb.pbUserPin.length;
+        var dwUserPinLen = pbUserPin.length;
         var err = c(ukey && ukey.J_BC_WD_VerifyPin(pbUserPin, dwUserPinLen));
         var ret = {
             err: err,
@@ -209,7 +209,7 @@ module.exports = {
         return ret;
     },
     // 11 J_BC_WD_RSASign (IN DWORD dwHashAlg, IN BYTE* pbData, IN DWORD dwDataLen, OUT BYTE* pbSign, OUT DWORD* pdwSignLen)
-    ukeyRSASign: function (dwHashAlg, pbData) {
+    ukeyRSASign: function (dwHashAlg, pbData, cb) {
         var dwDataLen = pbData.length;
         var pbSign = Buffer.alloc(512);
         var pdwSignLen = ref.alloc('ulong');
@@ -230,7 +230,7 @@ module.exports = {
         return ret;
     },
     // 12 J_BC_WD_ECCSign (IN BYTE* pbMsgRlp,IN DWORD dwMsgRlpLen, OUT BYTE*pbSignRlp, OUT DWORD*pdwSignLen);
-    ukeyECCSign: function (pbMsgRlp) {
+    ukeyECCSign: function (pbMsgRlp, cb) {
         var pbMsgRlp = Buffer.from(pbMsgRlp, 'hex');
         var dwMsgRlpLen = pbMsgRlp.length;
         var pbSignRlp = Buffer.alloc(1024);
@@ -252,8 +252,8 @@ module.exports = {
         return ret;
     },
     // 13 J_BC_WD_RSAVerifySign(IN DWORD dwHashAlg, IN  BYTE* pbData, IN DWORD dwDataLen, IN BYTE* pbSign); 注释跟头文件生命不一致
-    ukeyRSAVerifySign: function (dwHashAlg, pbData, pbSign) {
-        pbData = Buffer.from(pbData, 'hex');
+    ukeyRSAVerifySign: function (dwHashAlg, pbData, pbSign, cb) {
+        console.log(dwHashAlg, pbData, pbSign);
         dwDataLen = pbData.length;
         pbSign = Buffer.from(pbSign, 'hex');
 
@@ -267,7 +267,7 @@ module.exports = {
         return ret;
     },
     // 14 J_BC_WD_ECCVerifySign(IN BYTE* pbSignRlp)
-    ukeyECCVerifySign: function (pbSignRlp) {
+    ukeyECCVerifySign: function (pbSignRlp, cb) {
         pbSignRlp = Buffer.from(pbSignRlp, 'hex');
         var err = c(ukey && ukey.J_BC_WD_ECCVerifySign(pbSignRlp));
         var ret = {
@@ -277,11 +277,11 @@ module.exports = {
         return ret;
     },
     // 15 J_BC_BE_Enc(IN BYTE*pbMessage, IN DWORD dwMessage_Len, IN DWORD dwGroupNum, IN BYTE*pbGroup_PubKey, OUT BYTE*pbCipherText, OUT DWORD *pdwCipherText_Len)
-    ukeyEnc: function (pbMessage, dwGroupNum, pbGroup_PubKey) {
+    ukeyEnc: function (pbMessage, dwGroupNum, pbGroup_PubKey, cb) {
         pbMessage = Buffer.from(pbMessage, 'hex');
         var dwMessage_Len = pbMessage.length;
         pbGroup_PubKey = Buffer.from(pbGroup_PubKey, 'hex');
-        var pbCipherText = Buffer.alloc(512);
+        var pbCipherText = Buffer.alloc(1024);
         var pdwCipherText_Len = ref.alloc('ulong');
         pdwCipherText_Len.writeUInt32LE(pbCipherText.length);
 
@@ -298,7 +298,7 @@ module.exports = {
         return ret;
     },
     // 16 J_BC_BE_Dec(IN BYTE*pbCipherText, IN DWORD dwCipherText_Len, IN DWORD dwGroupNum, OUT BYTE*pbMessage, OUT DWORD*pdwMessage_Len)
-    ukeyDec: function (pbCipherText, dwGroupNum) {
+    ukeyDec: function (pbCipherText, dwGroupNum, cb) {
         pbCipherText = Buffer.from(pbCipherText, 'hex');
         var dwCipherText_Len = pbCipherText.length;
         var pbMessage = Buffer.alloc(1024);
@@ -318,7 +318,7 @@ module.exports = {
         return ret;
     },
     // 17 J_BC_GS_CheckKeyPair()
-    ukeyCheckKeyPair: function () {
+    ukeyCheckKeyPair: function (cb) {
         var err = c(ukey && ukey.J_BC_GS_CheckKeyPair());
         var ret = {
             err: err,
@@ -327,7 +327,7 @@ module.exports = {
         return ret;
     },
     // 18 J_BC_GS_ImportMPubKey(IN BYTE* pbMPubKey,IN DWORD dwMPubKey)
-    ukeyImportMPubKey: function (pbMPubKey) {
+    ukeyImportMPubKey: function (pbMPubKey, cb) {
         pbMPubKey = Buffer.from(pbMPubKey, 'hex');
         var dwMPubKey = pbMPubKey.length;
         var err = c(ukey && ukey.J_BC_GS_ImportMPubKey());
@@ -338,7 +338,7 @@ module.exports = {
         return ret;
     },
     // 19 J_BC_GS_ImportUPriKey(IN BYTE  *pbUPriKey,IN DWORD dwUPriKey)
-    ukeyImportUPriKey: function (pbUPriKey) {
+    ukeyImportUPriKey: function (pbUPriKey, cb) {
         var pbUPriKey = Buffer.from(tmp, 'hex');
         var dwUPriKey = pbUPriKey.length;
         var err = c(ukey && ukey.J_BC_GS_ImportUPriKey());
@@ -349,7 +349,7 @@ module.exports = {
         return ret;
     },
     // 20 J_BC_GS_Sign(IN BYTE* pbHash, IN DWORD dwHash, OUT BYTE*pbSign, OUT DWORD* pdwSignLen)
-    ukeyGSSign: function (pbHash) {
+    ukeyGSSign: function (pbHash, cb) {
         pbHash = Buffer.from(pbHash, 'hex');
         var dwHash = pbHash.length;
         var pbSign = Buffer.alloc(512);
@@ -369,7 +369,7 @@ module.exports = {
         return ret;
     },
     // 21 J_BC_GS_Verify(IN BYTE* pbHash, IN DWORD dwHash, IN BYTE* pbSign, IN DWORD dwSignLen)
-    ukeyGSVerify: function (pbHash, pbSign) {
+    ukeyGSVerify: function (pbHash, pbSign, cb) {
         pbHash = Buffer.from(pbHash, 'hex');
         var dwHash = pbHash.length;
         pbSign = Buffer.from(pbSign, 'hex');
@@ -383,7 +383,7 @@ module.exports = {
         return ret;
     },
     // 22 J_BC_WD_TradeSignProtect(IN  BYTE *pbMsg, IN DWORD dwMsg, IN DWORD dwGroupNum, IN BYTE *pbGroup_PubKey, OUT BYTE *pbSign, OUT DWORD *pdwSignLen)
-    ukeyTradeSignProtect: function (pbMsg, dwGroupNum, pbGroup_PubKey) {
+    ukeyTradeSignProtect: function (pbMsg, dwGroupNum, pbGroup_PubKey, cb) {
         pbMsg = Buffer.from(pbMsg, 'hex');
         var dwMsg = pbMsg.length;
         dwGroupNum = Buffer.from(dwGroupNum, 'hex');
@@ -404,7 +404,7 @@ module.exports = {
         return ret;
     },
     // 23 WDScardEncrypt_ECIES(IN LPBYTE pbData, IN DWORD dwDataLen, OUT LPBYTE pbEncryptedData, OUT LPDWORD pdwEncryptedDataLen);
-    ukeyWDScardEncryptECIES: function (pbData) {
+    ukeyWDScardEncryptECIES: function (pbData, cb) {
         pbData = Buffer.from(tmp, 'hex');
         var dwDataLen = pbData.length;
         var pbEncryptedData = Buffer.alloc(1024);
@@ -424,7 +424,7 @@ module.exports = {
         return ret;
     },
     // 24 WDScardDecrypt_ECIES(IN LPBYTE pbEncryptedData, IN DWORD dwEncryptedDataLen, OUT LPBYTE pbDecryptedData, OUT PDWORD pdwDecryptedDataLen)
-    ukeyWDScardDecryptECIES: function (pbEncryptedData) {
+    ukeyWDScardDecryptECIES: function (pbEncryptedData, cb) {
         pbEncryptedData = Buffer.from(pbEncryptedData, 'hex');
         var dwEncryptedDataLen = pbEncryptedData.length;
         var pbDecryptedData = Buffer.alloc(1024);

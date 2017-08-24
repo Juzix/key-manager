@@ -210,7 +210,7 @@ ukey常用方法说明
 ### 03 验证用户口令
 函数名称：**`ukeyVerifyPin`**   
 入参：
-* `pbUserPin`: 用户PIN   
+* `pbUserPin`: String 用户PIN   
 
 出参：
 * 无
@@ -237,7 +237,7 @@ ukey常用方法说明
 * 无 
 
 出参：
-* `pbPubKey`: 生成的用户公钥
+* `pbPubKey`: String 生成的用户公钥
 
 ### 07 导出指定密钥类型的公钥
 函数名称：**`ukeyECCGetPubKey`**   
@@ -245,12 +245,12 @@ ukey常用方法说明
 * 无 
 
 出参：
-* `pbPubKey`: 生成的用户公钥
+* `pbPubKey`: String 生成的用户公钥
 
 ### 08 导入RSA2048证书到USBKEY中。证书编码格式为PEM或者DER
 函数名称：**`ukeyImportRSACert`**   
 入参：
-* `pbCert`: 证书数据(其实是证书路径)   
+* `pbCert`: String 证书数据(其实是证书路径)   
 
 出参：
 * 无
@@ -261,39 +261,39 @@ ukey常用方法说明
 * 无  
 
 出参：
-* `pbCert`: 证书数据
+* `pbCert`: String 证书数据
 
 ### 10 RSA加密
 函数名称：**`ukeyRSAEncrypt`**   
 入参：
-* `pbData`: 明文数据   
+* `pbData`: String 明文数据   
 
 出参：
-* `pbCipher`: 密文
+* `pbCipher`: String 密文
 
 ### 11 支持RSA2048密钥对签名
 函数名称：**`ukeyRSASign`**   
 入参：
-* `dwHashAlg`: Hash算法，MD5:1,SHA1:2,SHA256:3,SHA3:4   
-* `pbData`: 待签名消息数据   
+* `dwHashAlg`: Integer Hash算法，MD5:1,SHA1:2,SHA256:3,SHA3:4   
+* `pbData`: String 待签名消息数据   
 
 出参：
-* `pbSign`: 签名值
+* `pbSign`: String 签名值
 
 ### 12 支持ECDSA签名
 函数名称：**`ukeyECCSign`**   
 入参：
-* `pbMsgRlp`: 待签名消息数据   
+* `pbMsgRlp`: String 待签名消息数据   
 
 出参：
-* `pbSignRlp`: 签名值
+* `pbSignRlp`: String 签名值
 
 ### 13 支持RSA2048密钥对验签
 函数名称：**`ukeyRSAVerifySign`**   
 入参：
-* `dwHashAlg`: Hash算法，MD5:1,SHA1:2,SHA256:3,SHA3:4   
-* `pbData`: 待签名消息数据   
-* `pbSign`: 签名值   
+* `dwHashAlg`: Integer Hash算法，MD5:1,SHA1:2,SHA256:3,SHA3:4   
+* `pbData`: String 待签名消息数据   
+* `pbSign`: String 签名值   
 
 出参：
 * 无
@@ -301,7 +301,7 @@ ukey常用方法说明
 ### 14 支持ECC验签
 函数名称：**`ukeyECCVerifySign`**   
 入参：
-* `pbSignRlp`: 签名值   
+* `pbSignRlp`: String 签名值   
 
 出参：
 * 无
@@ -309,21 +309,21 @@ ukey常用方法说明
 ### 15 根据广播加密算法机制对数据进行加密
 函数名称：**`ukeyEnc`**   
 入参：
-* `pbMessage`: 待加密的明文数据   
-* `dwGroupNum`: 群成员个数（小于100）   
-* `pbGroup_PubKey`: 群成员公钥（长度nGroupNum*Point_Len）   
+* `pbMessage`: String 待加密的明文数据   
+* `dwGroupNum`: Integer 群成员个数（小于100）   
+* `pbGroup_PubKey`: String 群成员公钥（长度nGroupNum*Point_Len）   
 
 出参：
-* `pbCipherText`: 密文
+* `pbCipherText`: String 密文
 
 ### 16 ECC广播解密
 函数名称：**`ukeyDec`**   
 入参：
-* `pbCipherText`: 密文数据   
-* `dwGroupNum`: 群成员个数（小于100）   
+* `pbCipherText`: String 密文数据   
+* `dwGroupNum`: Integer 群成员个数（小于100）   
 
 出参：
-* `pbMessage`: 解密的明文数据
+* `pbMessage`: String 解密的明文数据
 
 ### 17 判断用户私钥和系统公钥是否已导入
 函数名称：**`ukeyCheckKeyPair`**   
@@ -336,7 +336,7 @@ ukey常用方法说明
 ### 18 导入群签名系统公钥
 函数名称：**`ukeyImportMPubKey`**   
 入参：
-* `pbMPubKey`: 群签名系统公钥   
+* `pbMPubKey`: String 群签名系统公钥   
 
 出参：
 * 无
@@ -344,7 +344,7 @@ ukey常用方法说明
 ### 19 导入群签名用户私钥
 函数名称：**`ukeyImportUPriKey`**   
 入参：
-* `pbUPriKey`: 群签名用户私钥   
+* `pbUPriKey`: String 群签名用户私钥   
 
 出参：
 * 无
@@ -352,16 +352,16 @@ ukey常用方法说明
 ### 20 群签名
 函数名称：**`ukeyGSSign`**   
 入参：
-* `pbHash`: 签名消息的摘要   
+* `pbHash`: String 签名消息的摘要   
 
 出参：
-* `pbSign`: 签名值
+* `pbSign`: String 签名值
 
 ### 21 群签名验签
 函数名称：**`ukeyGSVerify`**   
 入参：
-* `pbHash`: 签名消息的摘要   
-* `pbSign`: 签名值   
+* `pbHash`: String 签名消息的摘要   
+* `pbSign`: String 签名值   
 
 出参：
 * 无
@@ -369,9 +369,9 @@ ukey常用方法说明
 ### 22 交易隐私保护接口：即以交易为输入，先对交易进行ECDSA签名，再对整个数据和签名进行广播加密，最后对整个密文进行群签名作为输出
 函数名称：**`ukeyTradeSignProtect`**   
 入参：
-* `pbMsg`: 待签名的交易数据原文   
-* `dwGroupNum`: 群成员个数（小于100）   
-* `pbGroup_PubKey`: 群成员公钥（长度nGroupNum*Point_Len）   
+* `pbMsg`: String 待签名的交易数据原文   
+* `dwGroupNum`: Integer 群成员个数（小于100）   
+* `pbGroup_PubKey`: String 群成员公钥（长度nGroupNum*Point_Len）   
 
 出参：
 * `pbSign`: 签名值
@@ -379,16 +379,16 @@ ukey常用方法说明
 ### 23 暂无描述，待确定
 函数名称：**`ukeyWDScardEncryptECIES`**   
 入参：
-* `pbData`: 待签名消息数据   
+* `pbData`: String 待签名消息数据   
 
 出参：
-* `pbEncryptedData`: 加密后的数据
+* `pbEncryptedData`: String 加密后的数据
 
 ### 24 暂无描述，待确定
 函数名称：**`ukeyWDScardDecryptECIES`**   
 入参：
-* `pbEncryptedData`: 加密后的数据   
+* `pbEncryptedData`: String 加密后的数据   
 
 出参：
-* `pbDecryptedData`: 原始数据
+* `pbDecryptedData`: String 原始数据
 

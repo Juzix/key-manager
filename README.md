@@ -86,7 +86,7 @@ key.createKey('lcq', '123456', function(err, keyObject) {
 | :------------   | :--------------------------------- |
 | keyObject       | 生成的key对象，调用函数               |
 | keystore        | 导出的目录                            |
-| outfile        | 导出的文件名                            |
+| outfileName        | 导出的文件名                            |
 | cb(err, outpath)  | 回调函数，如果不传，那么同步调用      |
 返回值说明：导出的文件路径outpath。
 ```JavaScript
@@ -392,7 +392,7 @@ ukey常用方法说明
 出参：
 * `pbDecryptedData`: String 原始数据
 
-### 24 获取地址
+### 25 获取地址
 函数名称：**`ukeyECCAddress`**   
 入参：
 * 无 

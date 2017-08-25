@@ -522,148 +522,90 @@ module.exports = {
         }
     },
     // 导出key到文件
-    exportToFile: function (keyObject, keystore, outfile, cb) {
-        var outfile, outpath, json;
-        var err = 0;
+    exportToFile: function (keyObject, keystore, outfileName, cb) {
         keystore = keystore || DEFAULT_PATH;
-        outfile = outfile || this.generateKeystoreFilename(keyObject);
-        outpath = path.join(keystore, outfile);
-        json = JSON.stringify(keyObject, null, 4);
-
+        var err = 0;
+        var outfileName = outfileName || this.generateKeystoreFilename(keyObject);
+        var outpath = path.join(keystore, outfileName);
+        var option = { spaces: 2 };
         var fileExist = fs.existsSync(outpath);
 
-        if (this.browser)
-            throw new Error("method only available in Node.js");
-
-        if (!isFunction(cb)) {
-            if (!fileExist) {
-                fs.writeFileSync(outpath, json);
-                return outpath;
-            } else {
-                return null;
-            }
-        } else {
+        if (isFunction(cb)) {
             if (fileExist) {
                 err = 2;
                 cb(err, null);
             } else {
-                fs.exists(keystore, function (exists) {
-                    if (exists) {
-                        fs.writeFile(outpath, json, function (ex) {
-                            if (ex) {
-                                err = 1;
-                                outpath = null;
-                            }
-                            cb(err, outpath);
-                        });
-                    } else {
-                        fs.mkdir(keystore, function () {
-                            fs.writeFile(outpath, json, function (ex) {
-                                if (ex) {
-                                    err = 1;
-                                    outpath = null;
-                                }
-                                cb(err, outpath);
-                            });
-                        });
+                fs.outputJson(outpath, keyObject, option, err => {
+                    if (!err) {
+                        cb(0, outpath)
                     }
-                });
+                })
+            }
+        } else {
+            if (!fileExist) {
+                fs.outputJsonSync(outpath, keyObject, option);
+                return outpath;
+            } else {
+                return null;
             }
         }
     },
     // 通过用户名，目录找到对应的key
     importFromUsername: function (username, keystore, cb) {
-        var filepath;
-        function findKeyfile(keystore, username, files) {
-            var len = files.length;
-            var filepath = null;
-            for (var i = 0; i < len; ++i) {
-                if (files[i].indexOf(username) > -1) {
-                    filepath = path.join(keystore, files[i]);
-                    if (fs.lstatSync(filepath).isDirectory()) {
-                        filepath = path.join(filepath, files[i]);
-                    }
-                    break;
-                }
-            }
-            return filepath;
-        }
-
-        if (this.browser)
-            throw new Error("method only available in Node.js");
         keystore = keystore || DEFAULT_PATH;
-        if (!isFunction(cb)) {
-            filepath = findKeyfile(keystore, username, fs.readdirSync(keystore));
-            return filepath ? JSON.parse(fs.readFileSync(filepath)) : null;
-        }
-        fs.readdir(keystore, function (ex, files) {
-            var filepath;
-            if (ex) {
-                cb(1, null);
-            } else {
-                filepath = findKeyfile(keystore, username, files);
-                filepath ? cb(0, JSON.parse(fs.readFileSync(filepath))) : cb(2, null);
-            }
-        });
+        var filePath = path.join(keystore, username + '.json');
+        return this.importFromFilePath(filePath, cb);
     },
     // 通过路径，找到对应的key
-    importFromFilePath: function (filepath, cb) {
-        if (this.browser)
-            throw new Error("method only available in Node.js");
-        var fileExist = fs.existsSync(filepath);
-
-        if (!isFunction(cb)) {
-            return fileExist ? JSON.parse(fs.readFileSync(filepath)) : null;
+    importFromFilePath: function (filePath, cb) {
+        if (isFunction(cb)) {
+            fs.readJson(filePath, (err, keyObject) => {
+                err = err ? 1 : 0;
+                cb(err, keyObject);
+            })
         } else {
-            if (fileExist) {
-                fs.readFile(filepath, function (err, data) {
-                    err ? cb(2, null) : cb(0, JSON.parse(data));
-                });
-            } else {
-                cb(1, null);
+            var keyObject = null;
+            try {
+                keyObject = fs.readJsonSync(filePath);
+            } catch(e) {
+
             }
+            return keyObject;
         }
     },
     // 获取某个目录下面的所有keys
     importFromDir: function (keystore, cb) {
-        var keyObjects = [];
         keystore = keystore || DEFAULT_PATH;
+        var keyObjects = [];
+        var self = this;
         if (isFunction(cb)) {
             fs.readdir(keystore, function (err, files) {
                 if (err || files.errno) {
                     console.log('readFile ' + keystore + ' error: ', err || files.errno);
                     cb(1, keyObjects);
                 } else {
+                    files = files.filter((file) => file.endsWith('.json'));
                     files.forEach(function (file, index) {
-                        try {
-                            var data = fs.readFileSync(keystore + '/' + file);
-                            var key = JSON.parse(data);
-                            if (!key.privateKey) {
-                                key.privateKey = null;
+                        var filePath = path.join(keystore, file);
+                        self.importFromFilePath(filePath, function(err, keyObject){
+                            if(err === 0){
+                                keyObjects.push(keyObject)
                             }
-                            if (key.address && key.address.length == 40) {
-                                key.address = '0x' + key.address;
+                            if (index+1 === files.length) {
+                                cb(0, keyObjects);
                             }
-                            keyObjects.push(key);
-                        } catch (e) {
-
-                        }
+                        });
                     });
-                    cb(0, keyObjects);
                 }
             });
         } else {
             var files = fs.readdirSync(keystore);
-            var fileCount = files.length;
+            files = files.filter((file) => file.endsWith('.json'));
             files.forEach(function (file, index) {
-                try {
-                    var data = fs.readFileSync(keystore + '/' + file);
-                    var key = JSON.parse(data);
-                    key.privateKey = null;
-                    key.address = '0x' + key.address;
-                    keyObjects.push(key);
-                } catch (e) {
-
+                var filePath = path.join(keystore, file);
+                var keyObject = self.importFromFilePath(filePath);
+                if (keyObject) {
+                    keyObjects.push(keyObject);
                 }
             });
             return keyObjects;
@@ -751,7 +693,6 @@ module.exports = {
             });
         }
     },
-
     // 获取公钥
     getPublicKey: function (privateKey, cb) {
         var err = 0;
@@ -779,55 +720,40 @@ module.exports = {
         var err = 0;
         var copyFiles = [];
         distDir = distDir || DEFAULT_PATH;
+        var option = {
+            overwrite: false,
+        }
 
+        // 只拷贝一级目录且不存在目标路径的json文件。
         var srcFiles = fs.readdirSync(srcDir).filter((file) => fs.lstatSync(path.join(srcDir, file)).isFile());
+        var distFiles = fs.readdirSync(distDir).filter((file) => fs.lstatSync(path.join(distDir, file)).isFile());
         srcFiles = srcFiles.filter((file) => file.endsWith('.json'));
+        srcFiles = srcFiles.filter((file) => distFiles.indexOf(file) < 0);
 
         var copyCount = 0;
 
         if (isFunction(cb)) {
-            srcFiles.forEach((file) => {
+            srcFiles.forEach((file, index) => {
                 var srcFilePath = path.join(srcDir, file);
                 var distFilePath = path.join(distDir, file);
-                if (!fs.existsSync(distFilePath)) {
-                    fs.readFile(srcFilePath, (err, data) => {
-                        if (!err) {
-                            fs.writeFile(distFilePath, data, function (ex) {
-                                copyCount++;
-                                if (!ex) {
-                                    copyFiles.push(file);
-                                }
-                                if (copyCount == srcFiles.length) {
-                                    cb(0, copyFiles);
-                                }
-                            });
-                        } else {
-                            copyCount++;
-                            if (copyCount == srcFiles.length) {
-                                cb(0, copyFiles);
-                            }
-                        };
-                    });
-                } else {
-                    copyCount++;
-                    if (copyCount == srcFiles.length) {
-                        cb(0, copyFiles);
-                    }
-                }
-            })
-        } else {
-            srcFiles.forEach((file) => {
-                var srcFilePath = path.join(srcDir, file);
-                var distFilePath = path.join(distDir, file);
-                if (!fs.existsSync(filePath)) {
-                    try {
-                        var data = fs.readFileSync(srcFilePath);
-                        fs.writeFileSync(distFilePath, data);
+                fs.copy(srcFilePath, distFilePath, option, function(err){
+                    if(!err){
                         copyFiles.push(file);
-                    } catch (e) {
-
                     }
-                }
+                    if (index+1 === srcFiles.length) {
+                        cb(0, srcFiles);
+                    }
+                })
+            })
+            if(srcFiles.length === 0){
+                cb(0, copyFiles);
+            }
+        } else {
+            srcFiles.forEach((file, index) => {
+                var srcFilePath = path.join(srcDir, file);
+                var distFilePath = path.join(distDir, file);
+                fs.copy(srcFilePath, distFilePath, option);
+                copyFiles.push(file);
             })
             return copyFiles;
         }

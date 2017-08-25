@@ -162,6 +162,18 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
+    ukeyECCAddress: function (cb) {
+        var r = this.ukeyECCGetPubKey();
+        var ret = {
+            err: r.err,
+            address: null,
+        }
+        if (r.err === 0) {
+            ret.address = sha3(ret.pbPubKey, { outputLength: 256 }).toString().slice(-40);
+        }
+        isFunction(cb) && cb(ret.err, ret);
+        return ret;
+    },
     // 08 J_BC_WD_ImportRSACert( IN BYTE *pbCert)
     ukeyImportRSACert: function (pbCert, cb) {
         var err = c(ukey && ukey.J_BC_WD_ImportRSACert(pbCert));

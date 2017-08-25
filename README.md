@@ -392,3 +392,11 @@ ukey常用方法说明
 出参：
 * `pbDecryptedData`: String 原始数据
 
+### 24 获取地址
+函数名称：**`ukeyECCAddress`**   
+入参：
+* 无 
+
+出参：
+* `address`: String 地址信息
+

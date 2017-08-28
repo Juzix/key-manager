@@ -15,7 +15,6 @@
 `var key = require("key-manager");`   
 所有的的文件默认存在DEFAULT_PATH下面，获取方式如下。即当前用户的home目录的keystores下面。下面示例代码的DEFAULT_PATH也是来自如此。
 ```JavaScript
-var fs = require("fs");
 var path = require("path");
 var os = require('os');
 const DEFAULT_PATH = path.join(os.homedir(), 'keystores');

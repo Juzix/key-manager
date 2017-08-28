@@ -9,46 +9,119 @@
 #define  WD_JUZHEN_MEMORY_ERROR  -2 //  //传入BUF的空间不足
 #define  WD_JUZHEN_DEV_ERROR    -3      //打开设备失败
 #define  WD_JUZHEN_NOKEY       -4       //没有指定的密钥
+#define  WD_JUZHEN_PIN_ERROR   -5       //没有指定的密钥
+
+/*
+ *PIN类型
+ */
+#define ADMIN_TYPE				0				//管理员PIN
+#define USER_TYPE				1				//用户PIN
 
 
 #ifdef _cplusplus
 extern "C"
 {
 #endif
+
+/*******************************************
+J_BC_WD_EnumDevice 
+函数功能及说明:
+    枚举所有设备，并返回设备的序列号列表。
+参数：
+    pbNameList：序列号列表。每个设备的序列号以单个'\0'结束，以双'\0'表示列表的结束。
+	pdwSizeLen: 序列号列表的缓冲区长度。pbNameList为NULL时，pdwSizeLen返回所需要的内存空间大小。
+	     
+返回值：
+    0: 失败  1: 打开设备成功。
+********************************************/
+
+LONG32 WINAPI J_BC_WD_EnumDevice ( OUT BYTE*pbNameList, OUT DWORD* pdwSizeLen);
+
 /*******************************************
 J_WD_OpenDevice 
 函数功能及说明:
     创建USBKEY设备上下文并打开USBKEY设备。
+
+参数：
+    pbDevSN：需要打开设备的序列号
+	phDev:   返回设备操作句柄。
+
 返回值：
     0: 失败  1: 打开设备成功。
 ********************************************/
-// 01
-LONG32 WINAPI J_BC_WD_OpenDevice ();
+
+LONG32 WINAPI J_BC_WD_OpenDevice (IN BYTE* pbDevSN,OUT HANDLE* phDev);
 
 
 /*******************************************
 J_WD_CloseDevice
 函数功能及说明:
     关闭USBKEY设备，并释放设备上下文。
+参数：
+    hDev：连接设备时返回的设备句柄
 返回值：
     0: 失败  1: 关闭设备成功。
 ********************************************/
-// 02
-LONG32 WINAPI J_BC_WD_CloseDevice();
 
+LONG32 WINAPI J_BC_WD_CloseDevice(IN HANDLE hDev);
+
+
+
+/*******************************************
+J_BC_WD_FormatDevice
+函数功能及说明：
+    初始化设备。
+参数：
+    hDev：         连接设备时返回的设备句柄
+    pbSoPin:       管理员PIN
+返回值：
+	0: 失败 1:成功
+********************************************/
+LONG32 WINAPI J_BC_WD_FormatDevice(IN HANDLE hDev,IN BYTE *pbSoPin);
+
+/*******************************************
+J_BC_WD_IsDefaultPin
+函数功能及说明：
+    判断是否是初始PIN。
+参数：
+    hDev：         连接设备时返回的设备句柄
+    dwPinType:     PIN类型，可以为ADMIN_TYPE=0，或USER_TYPE=1
+    pbDefaultPin:  TRUE(默认PIN)。
+返回值：
+	0: 失败 1:成功
+********************************************/
+LONG32 WINAPI J_BC_WD_IsDefaultPin (IN HANDLE hDev,IN DWORD dwPinType,OUT BOOL* pbDefaultPin);
 
 /*******************************************
 J_BC_WD_VerifyPin
 函数功能及说明：
     验证用户口令。
 参数：
-    pbUserPin: 用户PIN。
-    dwUserPinLen：用户PIN长度。
+    hDev：        连接设备时返回的设备句柄
+    dwPinType:    PIN类型，可以为ADMIN_TYPE=0，或USER_TYPE=1
+    pbUserPin:    PIN。
+	dwRetryCount: 出错后返回的重试次数
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 03
-LONG32 WINAPI J_BC_WD_VerifyPin (IN BYTE *pbUserPin,IN DWORD dwUserPinLen);
+LONG32 WINAPI J_BC_WD_VerifyPin (IN HANDLE hDev,IN DWORD dwPinType,IN BYTE *pbUserPin,OUT DWORD *pdwRetryCount);
+
+
+
+/*******************************************
+J_BC_WD_ChangePin
+函数功能及说明：
+    修改用户口令。
+参数：
+    hDev：      连接设备时返回的设备句柄
+    dwPinType:  PIN类型，可以为ADMIN_TYPE=0，或USER_TYPE=1
+    pbOldPin:   旧PIN。
+    pbNewPin：  新PIN。
+	dwRetryCount: 出错后返回的重试次数
+返回值：
+	0: 失败 1:成功
+********************************************/
+LONG32 WINAPI J_BC_WD_ChangePin (IN HANDLE hDev,IN DWORD dwPinType,IN BYTE *pbOldPin,IN BYTE *pbNewPin,OUT DWORD *pdwRetryCount);
 
 
 /*******************************************
@@ -61,8 +134,8 @@ J_BC_WD_RSAGenKey
 	0: 失败 1:成功
 ********************************************/
 
-// 04
-LONG32 WINAPI J_BC_WD_RSAGenKey ();
+
+LONG32 WINAPI J_BC_WD_RSAGenKey (IN HANDLE hDev);
 
 
 /*******************************************
@@ -75,8 +148,8 @@ J_BC_WD_ECCGenKey
 	0: 失败 1:成功
 ********************************************/
 
-// 05
-LONG32 WINAPI J_BC_WD_ECCGenKey();
+
+LONG32 WINAPI J_BC_WD_ECCGenKey(IN HANDLE hDev);
 
  
 /*******************************************
@@ -90,8 +163,7 @@ J_BC_WD_RSAGetPubKey
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 06
-LONG32 WINAPI J_BC_WD_RSAGetPubKey ( OUT BYTE *pbPubKey, OUT DWORD *pdwPubKeyLen);
+LONG32 WINAPI J_BC_WD_RSAGetPubKey (IN HANDLE hDev, OUT BYTE *pbPubKey, OUT DWORD *pdwPubKeyLen);
 
 
 /*******************************************
@@ -105,8 +177,7 @@ J_BC_WD_ECCGetPubKey
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 07
-LONG32 WINAPI J_BC_WD_ECCGetPubKey (OUT BYTE *pbPubKey, OUT DWORD *pdwPubKeyLen);
+LONG32 WINAPI J_BC_WD_ECCGetPubKey (IN HANDLE hDev,OUT BYTE *pbPubKey, OUT DWORD *pdwPubKeyLen);
 
 
 /*******************************************
@@ -118,8 +189,7 @@ J_BC_WD_ImportRSACert
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 08
-LONG32 WINAPI J_BC_WD_ImportRSACert( IN BYTE *pbCert);
+LONG32 WINAPI J_BC_WD_ImportRSACert(IN HANDLE hDev, IN BYTE *pbCert);
 
 
 /*******************************************
@@ -131,8 +201,7 @@ J_BC_WD_ExPortRSACert
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 09
-LONG32 WINAPI J_BC_WD_ExPortRSACert( OUT BYTE *pbCert,OUT DWORD *pdwCertLen);
+LONG32 WINAPI J_BC_WD_ExPortRSACert(IN HANDLE hDev, OUT BYTE *pbCert,OUT DWORD *pdwCertLen);
 
 
 /*******************************************
@@ -149,8 +218,7 @@ J_BC_WD_RSAEncrypt
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 10
-LONG32 WINAPI J_BC_WD_RSAEncrypt(
+LONG32 WINAPI J_BC_WD_RSAEncrypt(IN HANDLE hDev,
 								 IN BYTE *pbData,
 								 IN DWORD dwDataLen, 
 								 OUT BYTE*pbCipher,
@@ -173,8 +241,8 @@ J_BC_WD_RSASign
 	0: 失败 1:成功
 ********************************************/
 
-// 11
-LONG32 WINAPI J_BC_WD_RSASign (
+
+LONG32 WINAPI J_BC_WD_RSASign ( IN HANDLE    hDev,
 								IN DWORD     dwHashAlg,
 								IN BYTE*       pbData,
 								IN DWORD     dwDataLen,
@@ -207,13 +275,13 @@ J_BC_WD_ECCSign
 	0: 失败 1:成功
 ********************************************/
 
-// 12
-LONG32 WINAPI J_BC_WD_ECCSign (
-							IN BYTE*     pbMsgRlp,
-							IN DWORD     dwMsgRlpLen,
-							OUT BYTE*    pbSignRlp,
-							OUT DWORD*   pdwSignLen
-			              );
+
+LONG32 WINAPI J_BC_WD_ECCSign (IN HANDLE hDev,
+							   IN BYTE*     pbMsgRlp,
+							   IN DWORD     dwMsgRlpLen,
+							   OUT BYTE*    pbSignRlp,
+							   OUT DWORD*   pdwSignLen
+			                  );
 
 
 
@@ -235,8 +303,8 @@ J_BC_WD_RSAVerifySign
 	0: 失败 1:成功
 
 ********************************************/
-// 13
 LONG32 WINAPI J_BC_WD_RSAVerifySign(
+								 IN HANDLE hDev,
 								 IN DWORD dwHashAlg,
 								 IN  BYTE* pbData, 
 								 IN DWORD dwDataLen,
@@ -260,8 +328,7 @@ J_BC_WD_ECCVerifySign
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 14
-LONG32 WINAPI J_BC_WD_ECCVerifySign(IN BYTE* pbSignRlp);
+LONG32 WINAPI J_BC_WD_ECCVerifySign(IN HANDLE hDev,IN BYTE* pbSignRlp);
 
 
 
@@ -284,8 +351,7 @@ J_BC_BE_Enc
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 15
-LONG32 WINAPI J_BC_BE_Enc(  
+LONG32 WINAPI J_BC_BE_Enc( IN HANDLE  hDev,
 						   IN BYTE*   pbMessage,
 						   IN DWORD   dwMessage_Len,
 						   IN DWORD   dwGroupNum,
@@ -308,8 +374,8 @@ J_BC_BE_Dec
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 16
 LONG32 WINAPI J_BC_BE_Dec(
+						  IN  HANDLE  hDev,
 			              IN  BYTE*   pbCipherText,
 			              IN  DWORD   dwCipherText_Len,
 			              IN  DWORD   dwGroupNum,
@@ -326,8 +392,7 @@ J_BC_GS_CheckKeyPair
 返回值：
 	0: 失败 1:成功   -4：未导入
 ********************************************/
-// 17
-LONG32 WINAPI J_BC_GS_CheckKeyPair();
+LONG32 WINAPI J_BC_GS_CheckKeyPair(IN HANDLE hDev);
 
 
 /*******************************************
@@ -342,8 +407,7 @@ J_BC_GS_ImportMPubKey
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 18
-LONG32 WINAPI J_BC_GS_ImportMPubKey(IN BYTE* pbMPubKey,IN DWORD dwMPubKey);
+LONG32 WINAPI J_BC_GS_ImportMPubKey(IN HANDLE hDev,IN BYTE* pbMPubKey,IN DWORD dwMPubKey);
 
 
 
@@ -359,8 +423,7 @@ J_BC_GS_ImportUPriKey
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 19
-LONG32 WINAPI J_BC_GS_ImportUPriKey(IN BYTE  *pbUPriKey,IN DWORD dwUPriKey);
+LONG32 WINAPI J_BC_GS_ImportUPriKey(IN HANDLE hDev,IN BYTE  *pbUPriKey,IN DWORD dwUPriKey);
 
 
 
@@ -377,8 +440,9 @@ J_BC_GS_Sign
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 20
-LONG32 WINAPI J_BC_GS_Sign(IN BYTE*   pbHash,
+LONG32 WINAPI J_BC_GS_Sign(
+						   IN HANDLE  hDev,
+						   IN BYTE*   pbHash,
 						   IN DWORD   dwHash,
 						   OUT BYTE*  pbSign,
 						   OUT DWORD* pdwSignLen 
@@ -398,8 +462,9 @@ J_BC_GS_Verify
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 21
-LONG32 WINAPI J_BC_GS_Verify(IN BYTE*   pbHash,
+LONG32 WINAPI J_BC_GS_Verify(
+							 IN HANDLE  hDev,
+							 IN BYTE*   pbHash,
 							 IN DWORD   dwHash,
 							 IN BYTE*   pbSign,
 					         IN DWORD   dwSignLen);
@@ -422,8 +487,8 @@ J_BC_WD_TradeSignProtect
 返回值：
 	0: 失败 1:成功
 ********************************************/
-// 22
 LONG32 WINAPI J_BC_WD_TradeSignProtect(
+									   IN HANDLE   hDev,
 									   IN  BYTE    *pbMsg,
                                        IN  DWORD   dwMsg,
 									   IN  DWORD   dwGroupNum,
@@ -431,58 +496,47 @@ LONG32 WINAPI J_BC_WD_TradeSignProtect(
                                        OUT BYTE    *pbSign,
                                        OUT DWORD   *pdwSignLen
 									   );
-// 23
 LONG32 WINAPI WDScardEncrypt_ECIES(
+								   IN HANDLE hDev,
 								   IN LPBYTE pbData,
 								   IN DWORD dwDataLen, 
 								   OUT LPBYTE pbEncryptedData,
 								   OUT LPDWORD pdwEncryptedDataLen
 								  );
-								  
-// 24
+
 LONG32 WINAPI WDScardDecrypt_ECIES(
+								   IN HANDLE hDev,
 								   IN LPBYTE pbEncryptedData,
 								   IN DWORD dwEncryptedDataLen,
 								   OUT LPBYTE pbDecryptedData, 
 								   OUT PDWORD pdwDecryptedDataLen
 								  );
 
-								  
-								  
-								  
-								  
-								  
-								  
-								  
-								  
-								  
-// 后面四个函数，暂未调试成功								  
-								  
-								  
-								  
-								  
 /*******************************************
 WDScardGenKey_PAI
 函数功能及说明：
     产生加解密所需的公私钥对。
 参数：
     dwKeyLen：公私钥长度
-    pbPubKey_n:用户公钥n
-    pbPubKey_g:用户公钥g
-	pbPriKey_lambda: 用户私钥lambda
-    pbPriKey_mu: 用户私钥mu
 
 返回值：
 	0: 失败 1:成功
 ********************************************/
 
-LONG32 WINAPI WDScardGenKey_PAI(
-								IN DWORD   dwKeyLen,
-								OUT LPBYTE pbPubKey_n,
-								OUT LPBYTE pbPubKey_g, 
-								OUT LPBYTE pbPriKey_lambda,
-								OUT LPBYTE pbPriKey_mu
-							  );
+LONG32 WINAPI WDScardGenKey_PAI(IN  HANDLE  hDev,IN  DWORD dwKeyLen);
+
+/****************************************************************
+WDScardGetPubKeyn_PAI
+函数功能及说明：
+获取用户公钥n
+参数：
+[OUT]pbPubKey_n:用户公钥n
+[OUT]dwPubKeyLen_n:用户公钥n的长度
+
+  返回值：
+  0: 失败 1:成功                                                                      
+*********************************************************************/
+LONG32 WINAPI WDScardGetPubKeyn_PAI(IN  HANDLE  hDev,OUT LPBYTE pbPubKey_n,OUT DWORD *dwPubKeyLen);
 
 
 /*******************************************
@@ -505,13 +559,11 @@ WDScardEncryption_PAI
 	0: 失败 1:成功
 ********************************************/
 LONG32 WINAPI WDScardEncryption_PAI(
+									IN HANDLE   hDev,
 									IN LPBYTE   pbMsg,
 									IN DWORD    dwMsgLen,
-									IN LPBYTE   pbPubKey_n,
-									IN LPBYTE   pbPubKey_g,
-									IN DWORD    dwKeyLen,
-									IN LPBYTE   pbRandom,
-									IN DWORD    dwRandomLen,
+// 									IN LPBYTE   pbRandom,
+// 									IN DWORD    dwRandomLen,
 									OUT LPBYTE  pbCipher,
 									OUT LPDWORD pdwCipherLen
 					                );
@@ -536,12 +588,9 @@ WDScardDecryption_PAI
 	0: 失败 1:成功
 ********************************************/
 LONG32 WINAPI WDScardDecryption_PAI(
+									IN HANDLE   hDev,
 									IN LPBYTE   pbCipher,
 									IN DWORD    dwCipherLen,
-									IN LPBYTE   pbPubKey_n,
-									IN LPBYTE   pbPriKey_lambda,
-									IN LPBYTE   pbPriKey_mu,
-									IN DWORD    dwKeyLen,
 									OUT LPBYTE  pbMsg,
 									OUT LPDWORD pdwMsgLen
 					               );
@@ -567,12 +616,13 @@ WDScardHomAdd_PAI
 	0: 失败 1:成功
 ********************************************/
 LONG32 WINAPI  WDScardHomAdd_PAI(
+								 IN HANDLE   hDev,
 								 IN LPBYTE   pbCipherA,
 								 IN DWORD    dwCipherALen,
 								 IN LPBYTE   pbCipherB,
 								 IN DWORD    dwCipherBLen,
-								 IN LPBYTE   pbPubKey_n,
-								 IN DWORD    dwKeyLen,
+// 								 IN LPBYTE   pbPubKey_n,
+// 								 IN DWORD    dwKeyLen,
 								 OUT LPBYTE  pbResult,
 								 OUT LPDWORD pdwResultLen
 								);

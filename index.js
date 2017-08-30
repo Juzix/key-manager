@@ -90,13 +90,14 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_EnumDevice(pbNameList, pdwSizeLen));
         if (err === 0) {
             pdwSizeLen = pdwSizeLen.readUInt32LE();
-            pbNameList = pbNameList.toString('hex', 0, pdwSizeLen);
+            pbNameList = pbNameList.toString('ascii', 0, pdwSizeLen);
+            pbNameList = pbNameList.split('\0\0');
+            pbNameList = pbNameList.filter((name) => name != '');
         }
 
         var ret = {
             err: err,
             pbNameList: pbNameList,
-            pdwSizeLen: pdwSizeLen,
         }
         isFunction(cb) && cb(err, ret);
         return ret;

@@ -15,6 +15,9 @@ describe("开始ukey测试...", function () {
     step('01 测试获取序列号列表：ukeyEnumDevice', function (done) {
         key.ukeyEnumDevice(function (err, ret) {
             expect(ret.err).to.be.equal(0);
+            if (ret.err === 0) {
+                config.pbDevSN = ret.pbNameList[0]; // 默认用第一个来测试
+            }
             done();
         })
     });
@@ -104,6 +107,9 @@ describe("开始ukey测试...", function () {
     step('11 导出指定密钥类型的公钥：ukeyECCGetPubKey', function (done) {
         key.ukeyECCGetPubKey(config.hDev, function (err, ret) {
             expect(ret.err).to.be.equal(0);
+            if (ret.err === 0) {
+                config.eccPbMPubKey = ret.pbPubKey;
+            }
             done();
         })
     });
@@ -201,9 +207,8 @@ describe("开始ukey测试...", function () {
     });
 
     step('19 20 广播加密，广播解密：ukeyEnc，ukeyDec', function (done) {
-        config.pbGroup_PubKey = config.pbMPubKey.repeat(config.dwGroupNum);
+        config.pbGroup_PubKey = config.eccPbMPubKey.repeat(config.dwGroupNum);
         key.ukeyEnc(config.hDev, config.pbMessage, config.dwGroupNum, config.pbGroup_PubKey, function (err, ret) {
-            // console.log('ukeyEnc ret = ', ret);
             expect(ret.err).to.be.equal(0);
             if (ret.err === 0) {
                 key.ukeyDec(config.hDev, ret.pbCipherText, config.dwGroupNum, function (err, ret) {

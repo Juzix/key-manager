@@ -4,7 +4,7 @@
   "description": "私钥管理",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node ./node_modules/mocha/bin/mocha --timeout 30000"
   },
   "keywords": [
     "key",
@@ -19,5 +19,10 @@
     "fs-extra": "^4.0.1",
     "keythereum": "^1.0.2",
     "ref": "^1.3.4"
+  },
+  "devDependencies": {
+    "chai": "^4.1.1",
+    "mocha": "^3.5.0",
+    "mocha-steps": "^1.1.0"
   }
 }

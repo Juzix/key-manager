@@ -27,34 +27,40 @@ const DEFAULT_PATH = path.join(os.homedir(), 'keystores');
 
 var ukey = null;
 var dwordPoint = ref.refType(ref.types.ulong);
+var uint64Point = ref.refType(ref.types.uint64);
+var boolPoint = ref.refType(ref.types.bool);
 if (os.platform() === 'win32') {
     var dllName = (os.arch() === 'x64') ? ('WDJuZhenAPIx64') : ('WDJuZhenAPIx86');
     var dllPath = path.join(__dirname, 'dynamic', dllName);
     ukey = ffi.Library(dllPath, {
-        'J_BC_WD_OpenDevice': ['int', []],  // 01 √
-        'J_BC_WD_CloseDevice': ['int', []],  // 02 √
-        'J_BC_WD_VerifyPin': ['int', ['string', 'int']],  // 03 √
-        'J_BC_WD_RSAGenKey': ['int', []],  // 04 √
-        'J_BC_WD_ECCGenKey': ['int', []],  // 05 √
-        'J_BC_WD_RSAGetPubKey': ['int', ['string', dwordPoint]],  // 06 √
-        'J_BC_WD_ECCGetPubKey': ['int', ['string', dwordPoint]],  // 07 √
-        'J_BC_WD_ImportRSACert': ['int', ['string']],  // 08 √
-        'J_BC_WD_ExPortRSACert': ['int', ['string', dwordPoint]],  // 09 √
-        'J_BC_WD_RSAEncrypt': ['int', ['string', 'int', 'string', dwordPoint]],  // 10 √
-        'J_BC_WD_RSASign': ['int', ['int', 'string', 'int', 'string', dwordPoint]],  // 11 √
-        'J_BC_WD_ECCSign': ['int', ['string', 'int', 'string', dwordPoint]],  // 12 √
-        'J_BC_WD_RSAVerifySign': ['int', ['int', 'string', 'int', 'string']], // 13 × 
-        'J_BC_WD_ECCVerifySign': ['int', ['string']],  // 14 √
-        'J_BC_BE_Enc': ['int', ['string', 'int', 'int', 'string', 'string', dwordPoint]],  // 15 √
-        'J_BC_BE_Dec': ['int', ['string', 'int', 'int', 'string', dwordPoint]],  // 16 ×
-        'J_BC_GS_CheckKeyPair': ['int', []],  // 17 √
-        'J_BC_GS_ImportMPubKey': ['int', ['string', 'int']],  // 18 √
-        'J_BC_GS_ImportUPriKey': ['int', ['string', 'int']],  // 19 ×
-        'J_BC_GS_Sign': ['int', ['string', 'int', 'string', dwordPoint]],  // 20 ×
-        'J_BC_GS_Verify': ['int', ['string', 'int', 'string', 'int']],  // 21 ×
-        'J_BC_WD_TradeSignProtect': ['int', ['string', 'int', 'int', 'string', 'string', dwordPoint]],  // 22 √
-        'WDScardEncrypt_ECIES': ['int', ['string', 'int', 'string', dwordPoint]],  // 23 √
-        'WDScardDecrypt_ECIES': ['int', ['string', 'int', 'string', dwordPoint]],  // 24 ×
+        'J_BC_WD_EnumDevice': ['int', ['string', dwordPoint]],  // 01 
+        'J_BC_WD_OpenDevice': ['int', ['string', uint64Point]],  // 02 
+        'J_BC_WD_CloseDevice': ['int', ['uint64']],  // 03 
+        'J_BC_WD_FormatDevice': ['int', ['uint64', 'string']],  // 04 
+        'J_BC_WD_IsDefaultPin': ['int', ['uint64', 'int', boolPoint]],  // 05 
+        'J_BC_WD_VerifyPin': ['int', ['uint64', 'ulong', 'string', dwordPoint]],  // 06 
+        'J_BC_WD_ChangePin': ['int', ['uint64', 'ulong', 'string', 'string', dwordPoint]],  // 07 
+        'J_BC_WD_RSAGenKey': ['int', ['uint64']],  // 08 
+        'J_BC_WD_ECCGenKey': ['int', ['uint64']],  // 09 
+        'J_BC_WD_RSAGetPubKey': ['int', ['uint64', 'string', dwordPoint]],  // 10 
+        'J_BC_WD_ECCGetPubKey': ['int', ['uint64', 'string', dwordPoint]],  // 11 
+        'J_BC_WD_ImportRSACert': ['int', ['uint64', 'string']],  // 12 
+        'J_BC_WD_ExPortRSACert': ['int', ['uint64', 'string', dwordPoint]],  // 13 
+        'J_BC_WD_RSAEncrypt': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 14 
+        'J_BC_WD_RSASign': ['int', ['uint64', 'int', 'string', 'int', 'string', dwordPoint]],  // 15 
+        'J_BC_WD_ECCSign': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 16 
+        'J_BC_WD_RSAVerifySign': ['int', ['uint64', 'int', 'string', 'int', 'string']], // 17  
+        'J_BC_WD_ECCVerifySign': ['int', ['uint64', 'string']],  // 18 
+        'J_BC_BE_Enc': ['int', ['uint64', 'string', 'int', 'int', 'string', 'string', dwordPoint]],  // 19
+        'J_BC_BE_Dec': ['int', ['uint64', 'string', 'int', 'int', 'string', dwordPoint]],  // 20
+        'J_BC_GS_CheckKeyPair': ['int', ['uint64']],  // 21
+        'J_BC_GS_ImportMPubKey': ['int', ['uint64', 'string', 'int']],  // 22
+        'J_BC_GS_ImportUPriKey': ['int', ['uint64', 'string', 'int']],  // 23 
+        'J_BC_GS_Sign': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 24
+        'J_BC_GS_Verify': ['int', ['uint64', 'string', 'int', 'string', 'int']],  // 25
+        'J_BC_WD_TradeSignProtect': ['int', ['uint64', 'string', 'int', 'int', 'string', 'string', dwordPoint]],  // 26
+        'WDScardEncrypt_ECIES': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 27
+        'WDScardDecrypt_ECIES': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 28 
     });
 }
 
@@ -76,59 +82,128 @@ function c(err) {
 }
 
 module.exports = {
-    // 01 J_BC_WD_OpenDevice ()
-    ukeyOpenDevice: function (cb) {
-        var err = c(ukey && ukey.J_BC_WD_OpenDevice());
+    // 01 J_BC_WD_EnumDevice ( OUT BYTE*pbNameList, OUT DWORD* pdwSizeLen);
+    ukeyEnumDevice: function (cb) {
+        var pbNameList = Buffer.alloc(512);
+        var pdwSizeLen = ref.alloc('ulong');
+        pdwSizeLen.writeUInt32LE(pbNameList.length);
+        var err = c(ukey && ukey.J_BC_WD_EnumDevice(pbNameList, pdwSizeLen));
+        if (err === 0) {
+            pdwSizeLen = pdwSizeLen.readUInt32LE();
+            pbNameList = pbNameList.toString('hex', 0, pdwSizeLen);
+        }
+
+        var ret = {
+            err: err,
+            pbNameList: pbNameList,
+            pdwSizeLen: pdwSizeLen,
+        }
+        isFunction(cb) && cb(err, ret);
+        return ret;
+    },
+    // 02 J_BC_WD_OpenDevice (IN BYTE* pbDevSN,OUT HANDLE* phDev);
+    ukeyOpenDevice: function (pbDevSN, cb) {
+        var phDev = ref.alloc('uint64');
+        phDev.writeUInt64LE(0);
+        var err = c(ukey && ukey.J_BC_WD_OpenDevice(pbDevSN, phDev));
+        if (err === 0) {
+            phDev = phDev.readUInt64LE();
+        }
+        var ret = {
+            err: err,
+            phDev: phDev,
+        }
+        isFunction(cb) && cb(err, ret);
+        return ret;
+    },
+
+    // 03 J_BC_WD_CloseDevice(IN HANDLE hDev);
+    ukeyCloseDevice: function (hDev, cb) {
+        var err = c(ukey && ukey.J_BC_WD_CloseDevice(hDev));
         var ret = {
             err: err,
         }
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 02 J_BC_WD_CloseDevice()
-    ukeyCloseDevice: function (cb) {
-        var err = c(ukey && ukey.J_BC_WD_CloseDevice());
+    // 04 J_BC_WD_FormatDevice(IN HANDLE hDev,IN BYTE *pbSoPin);
+    ukeyFormatDevice: function (hDev, pbSoPin, cb) {
+        var err = c(ukey && ukey.J_BC_WD_FormatDevice(hDev, pbSoPin));
         var ret = {
             err: err,
         }
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 03 J_BC_WD_VerifyPin (IN BYTE *pbUserPin,IN DWORD dwUserPinLen)
-    ukeyVerifyPin: function (pbUserPin, cb) {
-        var dwUserPinLen = pbUserPin.length;
-        var err = c(ukey && ukey.J_BC_WD_VerifyPin(pbUserPin, dwUserPinLen));
+    // 05 J_BC_WD_IsDefaultPin (IN HANDLE hDev,IN DWORD dwPinType,OUT BOOL* pbDefaultPin);
+    ukeyIsDefaultPin: function (hDev, dwPinType, cb) {
+        var pbDefaultPin = ref.alloc('bool');
+
+        var err = c(ukey && ukey.J_BC_WD_IsDefaultPin(hDev, dwPinType, pbDefaultPin));
+        if (err === 0) {
+            pbDefaultPin = Boolean(pbDefaultPin.toString('hex'));
+        }
+        var ret = {
+            err: err,
+            pbDefaultPin: pbDefaultPin,
+        }
+        isFunction(cb) && cb(err, ret);
+        return ret;
+    },
+    // 06 J_BC_WD_VerifyPin (IN HANDLE hDev,IN DWORD dwPinType,IN BYTE *pbUserPin,OUT DWORD *pdwRetryCount);
+    ukeyVerifyPin: function (hDev, dwPinType, pbUserPin, cb) {
+        var pdwRetryCount = ref.alloc('ulong');
+        var err = c(ukey && ukey.J_BC_WD_VerifyPin(hDev, dwPinType, pbUserPin, pdwRetryCount));
+        if (err === 0) {
+            pdwRetryCount = pdwRetryCount.readUInt32LE();
+        }
+        var ret = {
+            err: err,
+            pdwRetryCount: pdwRetryCount,
+        }
+        isFunction(cb) && cb(err, ret);
+        return ret;
+    },
+    // 07 J_BC_WD_ChangePin (IN HANDLE hDev,IN DWORD dwPinType,IN BYTE *pbOldPin,IN BYTE *pbNewPin,OUT DWORD *pdwRetryCount)
+    ukeyChangePin: function (hDev, dwPinType, pbOldPin, pbNewPin, cb) {
+        var pdwRetryCount = ref.alloc('ulong');
+        var err = c(ukey && ukey.J_BC_WD_ChangePin(hDev, dwPinType, pbOldPin, pbNewPin, pdwRetryCount));
+        if (err === 0) {
+            pdwRetryCount = pdwRetryCount.readUInt32LE();
+        }
+        var ret = {
+            err: err,
+            pdwRetryCount: pdwRetryCount,
+        }
+        isFunction(cb) && cb(err, ret);
+        return ret;
+    },
+
+    // 08 J_BC_WD_RSAGenKey (IN HANDLE hDev)
+    ukeyRSAGenKey: function (hDev, cb) {
+        var err = c(ukey && ukey.J_BC_WD_RSAGenKey(hDev));
         var ret = {
             err: err,
         }
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 04 J_BC_WD_RSAGenKey ()
-    ukeyRSAGenKey: function (cb) {
-        var err = c(ukey && ukey.J_BC_WD_RSAGenKey());
+    // 09 J_BC_WD_ECCGenKey (IN HANDLE hDev)
+    ukeyECCGenKey: function (hDev, cb) {
+        var err = c(ukey && ukey.J_BC_WD_ECCGenKey(hDev));
         var ret = {
             err: err,
         }
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 05 J_BC_WD_ECCGenKey ()
-    ukeyECCGenKey: function (cb) {
-        var err = c(ukey && ukey.J_BC_WD_ECCGenKey());
-        var ret = {
-            err: err,
-        }
-        isFunction(cb) && cb(err, ret);
-        return ret;
-    },
-    // 06 J_BC_WD_RSAGetPubKey ( OUT BYTE *pbPubKey, OUT DWORD *pdwPubKeyLen)
-    ukeyRSAGetPubKey: function (cb) {
+    // 10 J_BC_WD_RSAGetPubKey (IN HANDLE hDev, OUT BYTE *pbPubKey, OUT DWORD *pdwPubKeyLen)
+    ukeyRSAGetPubKey: function (hDev, cb) {
         var pbPubKey = Buffer.alloc(512);
         var pdwPubKeyLen = ref.alloc('ulong');
-        pdwPubKeyLen.writeUInt32LE(512);
+        pdwPubKeyLen.writeUInt32LE(pbPubKey.length);
 
-        var err = c(ukey && ukey.J_BC_WD_RSAGetPubKey(pbPubKey, pdwPubKeyLen));
+        var err = c(ukey && ukey.J_BC_WD_RSAGetPubKey(hDev, pbPubKey, pdwPubKeyLen));
         if (err === 0) {
             pdwPubKeyLen = pdwPubKeyLen.readUInt32LE();
             pbPubKey = pbPubKey.toString('hex', 0, pdwPubKeyLen);
@@ -142,13 +217,13 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 07 J_BC_WD_ECCGetPubKey (OUT BYTE *pbPubKey, OUT DWORD *pdwPubKeyLen);
-    ukeyECCGetPubKey: function (cb) {
+    // 11 J_BC_WD_ECCGetPubKey (IN HANDLE hDev, OUT BYTE *pbPubKey, OUT DWORD *pdwPubKeyLen);
+    ukeyECCGetPubKey: function (hDev, cb) {
         var pbPubKey = Buffer.alloc(512);
         var pdwPubKeyLen = ref.alloc('ulong');
         pdwPubKeyLen.writeUInt32LE(512);
 
-        var err = c(ukey && ukey.J_BC_WD_ECCGetPubKey(pbPubKey, pdwPubKeyLen));
+        var err = c(ukey && ukey.J_BC_WD_ECCGetPubKey(hDev, pbPubKey, pdwPubKeyLen));
         if (err === 0) {
             pdwPubKeyLen = pdwPubKeyLen.readUInt32LE();
             pbPubKey = pbPubKey.toString('hex', 0, pdwPubKeyLen);
@@ -162,8 +237,8 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    ukeyECCAddress: function (cb) {
-        var r = this.ukeyECCGetPubKey();
+    ukeyECCAddress: function (hDev, cb) {
+        var r = this.ukeyECCGetPubKey(hDev);
         var ret = {
             err: r.err,
             address: null,
@@ -174,21 +249,21 @@ module.exports = {
         isFunction(cb) && cb(ret.err, ret);
         return ret;
     },
-    // 08 J_BC_WD_ImportRSACert( IN BYTE *pbCert)
-    ukeyImportRSACert: function (pbCert, cb) {
-        var err = c(ukey && ukey.J_BC_WD_ImportRSACert(pbCert));
+    // 12 J_BC_WD_ImportRSACert(IN HANDLE hDev, IN BYTE *pbCert)
+    ukeyImportRSACert: function (hDev, pbCert, cb) {
+        var err = c(ukey && ukey.J_BC_WD_ImportRSACert(hDev, pbCert));
         var ret = {
             err: err,
         }
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 09 J_BC_WD_ExPortRSACert( OUT BYTE *pbCert,OUT DWORD *pdwCertLen);
-    ukeyExPortRSACert: function (cb) {
+    // 13 J_BC_WD_ExPortRSACert(IN HANDLE hDev, OUT BYTE *pbCert,OUT DWORD *pdwCertLen);
+    ukeyExPortRSACert: function (hDev, cb) {
         var pbCert = Buffer.alloc(128);
         var pdwCertLen = ref.alloc('ulong');
         pdwCertLen.writeUInt32LE(128);
-        var err = c(ukey && ukey.J_BC_WD_ExPortRSACert(pbCert, pdwCertLen));
+        var err = c(ukey && ukey.J_BC_WD_ExPortRSACert(hDev, pbCert, pdwCertLen));
         if (err === 0) {
             pdwCertLen = pdwCertLen.readUInt32LE();
             pbCert = pbCert.toString('hex', 0, pdwCertLen);
@@ -201,14 +276,13 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 10 J_BC_WD_RSAEncrypt(IN BYTE *pbData, IN DWORD dwDataLen, OUT BYTE*pbCipher, OUT DWORD* pdwCipherLen)
-    ukeyRSAEncrypt: function (pbData, cb) {
+    // 14 J_BC_WD_RSAEncrypt(IN HANDLE hDev, IN BYTE *pbData, IN DWORD dwDataLen, OUT BYTE*pbCipher, OUT DWORD* pdwCipherLen)
+    ukeyRSAEncrypt: function (hDev, pbData, cb) {
         var dwDataLen = pbData.length;
         var pbCipher = Buffer.alloc(512);
         var pdwCipherLen = ref.alloc('ulong');
         pdwCipherLen.writeUInt32LE(512);
-
-        var err = c(ukey && ukey.J_BC_WD_RSAEncrypt(pbData, dwDataLen, pbCipher, pdwCipherLen));
+        var err = c(ukey && ukey.J_BC_WD_RSAEncrypt(hDev, pbData, dwDataLen, pbCipher, pdwCipherLen));
         if (err === 0) {
             pdwCipherLen = pdwCipherLen.readUInt32LE();
             pbCipher = pbCipher.toString('hex', 0, pdwCipherLen);
@@ -221,14 +295,14 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 11 J_BC_WD_RSASign (IN DWORD dwHashAlg, IN BYTE* pbData, IN DWORD dwDataLen, OUT BYTE* pbSign, OUT DWORD* pdwSignLen)
-    ukeyRSASign: function (dwHashAlg, pbData, cb) {
+    // 15 J_BC_WD_RSASign (IN HANDLE hDev, IN DWORD dwHashAlg, IN BYTE* pbData, IN DWORD dwDataLen, OUT BYTE* pbSign, OUT DWORD* pdwSignLen)
+    ukeyRSASign: function (hDev, dwHashAlg, pbData, cb) {
         var dwDataLen = pbData.length;
         var pbSign = Buffer.alloc(512);
         var pdwSignLen = ref.alloc('ulong');
         pdwSignLen.writeUInt32LE(pbSign.length);
 
-        var err = c(ukey && ukey.J_BC_WD_RSASign(dwHashAlg, pbData, dwDataLen, pbSign, pdwSignLen));
+        var err = c(ukey && ukey.J_BC_WD_RSASign(hDev, dwHashAlg, pbData, dwDataLen, pbSign, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
             pbSign = pbSign.toString('hex', 0, pdwSignLen);
@@ -242,15 +316,15 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 12 J_BC_WD_ECCSign (IN BYTE* pbMsgRlp,IN DWORD dwMsgRlpLen, OUT BYTE*pbSignRlp, OUT DWORD*pdwSignLen);
-    ukeyECCSign: function (pbMsgRlp, cb) {
+    // 16 J_BC_WD_ECCSign (IN HANDLE hDev, IN BYTE* pbMsgRlp,IN DWORD dwMsgRlpLen, OUT BYTE*pbSignRlp, OUT DWORD*pdwSignLen);
+    ukeyECCSign: function (hDev, pbMsgRlp, cb) {
         var pbMsgRlp = Buffer.from(pbMsgRlp, 'hex');
         var dwMsgRlpLen = pbMsgRlp.length;
         var pbSignRlp = Buffer.alloc(1024);
         var pdwSignLen = ref.alloc('ulong');
         pdwSignLen.writeUInt32LE(pbSignRlp.length);
 
-        var err = c(ukey && ukey.J_BC_WD_ECCSign(pbMsgRlp, dwMsgRlpLen, pbSignRlp, pdwSignLen));
+        var err = c(ukey && ukey.J_BC_WD_ECCSign(hDev, pbMsgRlp, dwMsgRlpLen, pbSignRlp, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
             pbSignRlp = pbSignRlp.toString('hex', 0, pdwSignLen);
@@ -264,13 +338,12 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 13 J_BC_WD_RSAVerifySign(IN DWORD dwHashAlg, IN  BYTE* pbData, IN DWORD dwDataLen, IN BYTE* pbSign); 注释跟头文件生命不一致
-    ukeyRSAVerifySign: function (dwHashAlg, pbData, pbSign, cb) {
-        console.log(dwHashAlg, pbData, pbSign);
+    // 17 J_BC_WD_RSAVerifySign(IN HANDLE hDev, IN DWORD dwHashAlg, IN  BYTE* pbData, IN DWORD dwDataLen, IN BYTE* pbSign); 注释跟头文件生命不一致
+    ukeyRSAVerifySign: function (hDev, dwHashAlg, pbData, pbSign, cb) {
         dwDataLen = pbData.length;
         pbSign = Buffer.from(pbSign, 'hex');
 
-        var err = c(ukey && ukey.J_BC_WD_RSAVerifySign(dwHashAlg, pbData, dwDataLen, pbSign));
+        var err = c(ukey && ukey.J_BC_WD_RSAVerifySign(hDev, dwHashAlg, pbData, dwDataLen, pbSign));
 
         var ret = {
             err: err,
@@ -279,18 +352,18 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 14 J_BC_WD_ECCVerifySign(IN BYTE* pbSignRlp)
-    ukeyECCVerifySign: function (pbSignRlp, cb) {
+    // 18 J_BC_WD_ECCVerifySign(IN HANDLE hDev, IN BYTE* pbSignRlp)
+    ukeyECCVerifySign: function (hDev, pbSignRlp, cb) {
         pbSignRlp = Buffer.from(pbSignRlp, 'hex');
-        var err = c(ukey && ukey.J_BC_WD_ECCVerifySign(pbSignRlp));
+        var err = c(ukey && ukey.J_BC_WD_ECCVerifySign(hDev, pbSignRlp));
         var ret = {
             err: err,
         }
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 15 J_BC_BE_Enc(IN BYTE*pbMessage, IN DWORD dwMessage_Len, IN DWORD dwGroupNum, IN BYTE*pbGroup_PubKey, OUT BYTE*pbCipherText, OUT DWORD *pdwCipherText_Len)
-    ukeyEnc: function (pbMessage, dwGroupNum, pbGroup_PubKey, cb) {
+    // 19 J_BC_BE_Enc(IN HANDLE hDev, IN BYTE*pbMessage, IN DWORD dwMessage_Len, IN DWORD dwGroupNum, IN BYTE*pbGroup_PubKey, OUT BYTE*pbCipherText, OUT DWORD *pdwCipherText_Len)
+    ukeyEnc: function (hDev, pbMessage, dwGroupNum, pbGroup_PubKey, cb) {
         pbMessage = Buffer.from(pbMessage, 'hex');
         var dwMessage_Len = pbMessage.length;
         pbGroup_PubKey = Buffer.from(pbGroup_PubKey, 'hex');
@@ -298,7 +371,7 @@ module.exports = {
         var pdwCipherText_Len = ref.alloc('ulong');
         pdwCipherText_Len.writeUInt32LE(pbCipherText.length);
 
-        var err = c(ukey && ukey.J_BC_BE_Enc(pbMessage, dwMessage_Len, dwGroupNum, pbGroup_PubKey, pbCipherText, pdwCipherText_Len));
+        var err = c(ukey && ukey.J_BC_BE_Enc(hDev, pbMessage, dwMessage_Len, dwGroupNum, pbGroup_PubKey, pbCipherText, pdwCipherText_Len));
         if (err === 0) {
             pdwCipherText_Len = pdwCipherText_Len.readUInt32LE();
             pbCipherText = pbCipherText.toString('hex', 0, pdwCipherText_Len);
@@ -310,15 +383,15 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 16 J_BC_BE_Dec(IN BYTE*pbCipherText, IN DWORD dwCipherText_Len, IN DWORD dwGroupNum, OUT BYTE*pbMessage, OUT DWORD*pdwMessage_Len)
-    ukeyDec: function (pbCipherText, dwGroupNum, cb) {
+    // 20 J_BC_BE_Dec(IN HANDLE hDev, IN BYTE*pbCipherText, IN DWORD dwCipherText_Len, IN DWORD dwGroupNum, OUT BYTE*pbMessage, OUT DWORD*pdwMessage_Len)
+    ukeyDec: function (hDev, pbCipherText, dwGroupNum, cb) {
         pbCipherText = Buffer.from(pbCipherText, 'hex');
         var dwCipherText_Len = pbCipherText.length;
         var pbMessage = Buffer.alloc(1024);
         var pdwMessage_Len = ref.alloc('ulong');
-        pdwMessage_Len.writeUInt32LE(1024);
+        pdwMessage_Len.writeUInt32LE(pbMessage.length);
 
-        var err = c(ukey && ukey.J_BC_BE_Dec(pbCipherText, dwCipherText_Len, dwGroupNum, pbMessage, pdwMessage_Len));
+        var err = c(ukey && ukey.J_BC_BE_Dec(hDev, pbCipherText, dwCipherText_Len, dwGroupNum, pbMessage, pdwMessage_Len));
         if (err === 0) {
             pdwMessage_Len = pdwMessage_Len.readUInt32LE();
             pbMessage = pbMessage.toString('hex', 0, pdwMessage_Len);
@@ -330,39 +403,39 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 17 J_BC_GS_CheckKeyPair()
-    ukeyCheckKeyPair: function (cb) {
-        var err = c(ukey && ukey.J_BC_GS_CheckKeyPair());
+    // 21 J_BC_GS_CheckKeyPair(IN HANDLE hDev)
+    ukeyCheckKeyPair: function (hDev, cb) {
+        var err = c(ukey && ukey.J_BC_GS_CheckKeyPair(hDev));
         var ret = {
             err: err,
         }
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 18 J_BC_GS_ImportMPubKey(IN BYTE* pbMPubKey,IN DWORD dwMPubKey)
-    ukeyImportMPubKey: function (pbMPubKey, cb) {
+    // 22 J_BC_GS_ImportMPubKey(IN HANDLE hDev, IN BYTE* pbMPubKey,IN DWORD dwMPubKey)
+    ukeyImportMPubKey: function (hDev, pbMPubKey, cb) {
         pbMPubKey = Buffer.from(pbMPubKey, 'hex');
         var dwMPubKey = pbMPubKey.length;
-        var err = c(ukey && ukey.J_BC_GS_ImportMPubKey(pbMPubKey, dwMPubKey));
+        var err = c(ukey && ukey.J_BC_GS_ImportMPubKey(hDev, pbMPubKey, dwMPubKey));
         var ret = {
             err: err,
         }
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 19 J_BC_GS_ImportUPriKey(IN BYTE  *pbUPriKey,IN DWORD dwUPriKey)
-    ukeyImportUPriKey: function (pbUPriKey, cb) {
+    // 23 J_BC_GS_ImportUPriKey(IN HANDLE hDev, IN BYTE  *pbUPriKey,IN DWORD dwUPriKey)
+    ukeyImportUPriKey: function (hDev, pbUPriKey, cb) {
         pbUPriKey = Buffer.from(pbUPriKey, 'hex');
         var dwUPriKey = pbUPriKey.length;
-        var err = c(ukey && ukey.J_BC_GS_ImportUPriKey(pbUPriKey, dwUPriKey));
+        var err = c(ukey && ukey.J_BC_GS_ImportUPriKey(hDev, pbUPriKey, dwUPriKey));
         var ret = {
             err: err,
         }
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 20 J_BC_GS_Sign(IN BYTE* pbHash, IN DWORD dwHash, OUT BYTE*pbSign, OUT DWORD* pdwSignLen)
-    ukeyGSSign: function (pbHash, cb) {
+    // 24 J_BC_GS_Sign(IN HANDLE hDev, IN BYTE* pbHash, IN DWORD dwHash, OUT BYTE*pbSign, OUT DWORD* pdwSignLen)
+    ukeyGSSign: function (hDev, pbHash, cb) {
         pbHash = sha3(pbHash, { outputLength: 256 }).toString();
         pbHash = Buffer.from(pbHash, 'hex');
         var dwHash = pbHash.length;
@@ -370,7 +443,7 @@ module.exports = {
         var pdwSignLen = ref.alloc('ulong');
         pdwSignLen.writeUInt32LE(pbSign.length);
 
-        var err = c(ukey && ukey.J_BC_GS_Sign(pbHash, dwHash, pbSign, pdwSignLen));
+        var err = c(ukey && ukey.J_BC_GS_Sign(hDev, pbHash, dwHash, pbSign, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
             pbSign = pbSign.toString('hex', 0, pdwSignLen);
@@ -382,23 +455,23 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 21 J_BC_GS_Verify(IN BYTE* pbHash, IN DWORD dwHash, IN BYTE* pbSign, IN DWORD dwSignLen)
-    ukeyGSVerify: function (pbHash, pbSign, cb) {
+    // 25 J_BC_GS_Verify(IN HANDLE hDev, IN BYTE* pbHash, IN DWORD dwHash, IN BYTE* pbSign, IN DWORD dwSignLen)
+    ukeyGSVerify: function (hDev, pbHash, pbSign, cb) {
         pbHash = sha3(pbHash, { outputLength: 256 }).toString();
         pbHash = Buffer.from(pbHash, 'hex');
         var dwHash = pbHash.length;
         pbSign = Buffer.from(pbSign, 'hex');
         var pdwSignLen = pbSign.length;
 
-        var err = c(ukey && ukey.J_BC_GS_Verify(pbHash, dwHash, pbSign, pdwSignLen));
+        var err = c(ukey && ukey.J_BC_GS_Verify(hDev, pbHash, dwHash, pbSign, pdwSignLen));
         var ret = {
             err: err,
         }
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 22 J_BC_WD_TradeSignProtect(IN  BYTE *pbMsg, IN DWORD dwMsg, IN DWORD dwGroupNum, IN BYTE *pbGroup_PubKey, OUT BYTE *pbSign, OUT DWORD *pdwSignLen)
-    ukeyTradeSignProtect: function (pbMsg, dwGroupNum, pbGroup_PubKey, cb) {
+    // 26 J_BC_WD_TradeSignProtect(IN HANDLE hDev, IN  BYTE *pbMsg, IN DWORD dwMsg, IN DWORD dwGroupNum, IN BYTE *pbGroup_PubKey, OUT BYTE *pbSign, OUT DWORD *pdwSignLen)
+    ukeyTradeSignProtect: function (hDev, pbMsg, dwGroupNum, pbGroup_PubKey, cb) {
         pbMsg = Buffer.from(pbMsg, 'hex');
         var dwMsg = pbMsg.length;
         pbGroup_PubKey = Buffer.from(pbGroup_PubKey, 'hex');
@@ -406,7 +479,7 @@ module.exports = {
         var pdwSignLen = ref.alloc('ulong');
         pdwSignLen.writeUInt32LE(pbSign.length);
 
-        var err = c(ukey && ukey.J_BC_WD_TradeSignProtect(pbMsg, dwMsg, dwGroupNum, pbGroup_PubKey, pbSign, pdwSignLen));
+        var err = c(ukey && ukey.J_BC_WD_TradeSignProtect(hDev, pbMsg, dwMsg, dwGroupNum, pbGroup_PubKey, pbSign, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
             pbSign = pbSign.toString('hex', 0, pdwSignLen);
@@ -418,15 +491,15 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 23 WDScardEncrypt_ECIES(IN LPBYTE pbData, IN DWORD dwDataLen, OUT LPBYTE pbEncryptedData, OUT LPDWORD pdwEncryptedDataLen);
-    ukeyWDScardEncryptECIES: function (pbData, cb) {
+    // 27 WDScardEncrypt_ECIES(IN HANDLE hDev, IN LPBYTE pbData, IN DWORD dwDataLen, OUT LPBYTE pbEncryptedData, OUT LPDWORD pdwEncryptedDataLen);
+    ukeyWDScardEncryptECIES: function (hDev, pbData, cb) {
         pbData = Buffer.from(pbData, 'hex');
         var dwDataLen = pbData.length;
         var pbEncryptedData = Buffer.alloc(1024);
         var pdwEncryptedDataLen = ref.alloc('ulong');
         pdwEncryptedDataLen.writeUInt32LE(pbEncryptedData.length);
 
-        var err = c(ukey && ukey.WDScardEncrypt_ECIES(pbData, dwDataLen, pbEncryptedData, pdwEncryptedDataLen));
+        var err = c(ukey && ukey.WDScardEncrypt_ECIES(hDev, pbData, dwDataLen, pbEncryptedData, pdwEncryptedDataLen));
         if (err === 0) {
             pdwEncryptedDataLen = pdwEncryptedDataLen.readUInt32LE();
             pbEncryptedData = pbEncryptedData.toString('hex', 0, pdwEncryptedDataLen);
@@ -438,15 +511,15 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 24 WDScardDecrypt_ECIES(IN LPBYTE pbEncryptedData, IN DWORD dwEncryptedDataLen, OUT LPBYTE pbDecryptedData, OUT PDWORD pdwDecryptedDataLen)
-    ukeyWDScardDecryptECIES: function (pbEncryptedData, cb) {
+    // 28 WDScardDecrypt_ECIES(IN HANDLE hDev, IN LPBYTE pbEncryptedData, IN DWORD dwEncryptedDataLen, OUT LPBYTE pbDecryptedData, OUT PDWORD pdwDecryptedDataLen)
+    ukeyWDScardDecryptECIES: function (hDev, pbEncryptedData, cb) {
         pbEncryptedData = Buffer.from(pbEncryptedData, 'hex');
         var dwEncryptedDataLen = pbEncryptedData.length;
         var pbDecryptedData = Buffer.alloc(1024);
         var pdwDecryptedDataLen = ref.alloc('ulong');
         pdwDecryptedDataLen.writeUInt32LE(pbDecryptedData.length);
 
-        var err = c(ukey && ukey.WDScardDecrypt_ECIES(pbEncryptedData, dwEncryptedDataLen, pbDecryptedData, pdwDecryptedDataLen));
+        var err = c(ukey && ukey.WDScardDecrypt_ECIES(hDev, pbEncryptedData, dwEncryptedDataLen, pbDecryptedData, pdwDecryptedDataLen));
         if (err === 0) {
             pdwDecryptedDataLen = pdwDecryptedDataLen.readUInt32LE();
             pbDecryptedData = pbDecryptedData.toString('hex', 0, pdwDecryptedDataLen);
@@ -458,7 +531,6 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-
     // 以下为文件证书函数
     browser: typeof process === "undefined" || !process.nextTick || Boolean(process.browser),
     setParams: function (_params) {
@@ -567,7 +639,7 @@ module.exports = {
             var keyObject = null;
             try {
                 keyObject = fs.readJsonSync(filePath);
-            } catch(e) {
+            } catch (e) {
 
             }
             return keyObject;
@@ -587,11 +659,11 @@ module.exports = {
                     files = files.filter((file) => file.endsWith('.json'));
                     files.forEach(function (file, index) {
                         var filePath = path.join(keystore, file);
-                        self.importFromFilePath(filePath, function(err, keyObject){
-                            if(err === 0){
+                        self.importFromFilePath(filePath, function (err, keyObject) {
+                            if (err === 0) {
                                 keyObjects.push(keyObject)
                             }
-                            if (index+1 === files.length) {
+                            if (index + 1 === files.length) {
                                 cb(0, keyObjects);
                             }
                         });
@@ -736,16 +808,16 @@ module.exports = {
             srcFiles.forEach((file, index) => {
                 var srcFilePath = path.join(srcDir, file);
                 var distFilePath = path.join(distDir, file);
-                fs.copy(srcFilePath, distFilePath, option, function(err){
-                    if(!err){
+                fs.copy(srcFilePath, distFilePath, option, function (err) {
+                    if (!err) {
                         copyFiles.push(file);
                     }
-                    if (index+1 === srcFiles.length) {
+                    if (index + 1 === srcFiles.length) {
                         cb(0, srcFiles);
                     }
                 })
             })
-            if(srcFiles.length === 0){
+            if (srcFiles.length === 0) {
                 cb(0, copyFiles);
             }
         } else {

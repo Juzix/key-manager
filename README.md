@@ -8,7 +8,7 @@
 -----
 1. 大部分文件方法提供同步以及异步的调用。建议使用均使用异步调用。异步调用大部分回调函数均以`function(err, data1, data2, ...){}`返回，第一个参数是错误返回代码，0为正常，其他为异常。
 2. 所有ukey的调用函数均为ukey开头，用来区分与文件证书的函数接口。
-3. 如果需要使用ukey的接口，首先需要安装ukey的驱动，然后需要安装node-gyp的环境：[node-gyp环境搭建](https://github.com/nodejs/node-gyp#installation)。安装好node-gyp环境之后，因为执行`npm install`的时候使用的node的版本可能跟electron使用的版本不一致，所以你需要重新安装（其实就是用electron依赖的node版本重新编译）key-manager依赖的包，官方文档[Using Native Node Modules](https://electron.atom.io/docs/tutorial/using-native-node-modules/)供参考。这里也有一篇中文[Electron 使用 Node 原生模块](http://www.jianshu.com/p/9ce7a9ccdc78)供参考。上面的中文参考我使用命令没法设置成功，最后我只直接把下面的配置拷贝到了.npmrc文件下面。下面配置仅供参考。当然，安装过程需要全局翻墙，你懂的！
+3. 如果需要使用ukey的接口，首先需要安装ukey的驱动，clone下来之后，文件为`./dynamic/JuZhenUSBKey.exe`。然后需要安装node-gyp的环境：[node-gyp环境搭建](https://github.com/nodejs/node-gyp#installation)。安装好node-gyp环境之后，因为执行`npm install`的时候使用的node的版本可能跟electron使用的版本不一致，所以你需要重新安装（其实就是用electron依赖的node版本重新编译）key-manager依赖的包，官方文档[Using Native Node Modules](https://electron.atom.io/docs/tutorial/using-native-node-modules/)供参考。这里也有一篇中文[Electron 使用 Node 原生模块](http://www.jianshu.com/p/9ce7a9ccdc78)供参考。上面的中文参考我使用命令没法设置成功，最后我只直接把下面的配置拷贝到了.npmrc文件下面。下面配置仅供参考。当然，安装过程需要全局翻墙，你懂的！
 ```
 target=1.7.5  -- 你的electron版本
 arch=x64   -- 你的系统位数
@@ -46,6 +46,11 @@ var ret1 = key.ukeyRSAEncrypt(pbData, function(err, ret2){
 // ret1 为同步调用返回的值，与异步调用里面的ret2的值是一样的。当然，如果想同步调用，回调函数可以省略不写，类似这样如下:
 var ret1 = key.ukeyRSAEncrypt(pbData);
 ```   
+
+测试
+-----
+目前写了所有的ukey的测试用例，如果你需要测试，请在`test`目录下面以config.default.js为蓝本，重新生成一份你的ukey信息的config.js配置，然后执行`npm run test`即可。里面有一些调用接口的示例，也可进行参考。
+
 
 文件证书常用方法说明 
 --------------------------  
@@ -199,106 +204,151 @@ key.restoreKeys('C:/Users/lcq/Desktop/keys', DEFAULT_PATH, function(err, files){
 ukey常用方法说明 
 --------------------------
 关于`入参`与`出参`的说明：如果有入参，则按照入参的描述，依次传入参数，最后传入回调函数。如果入参描述`无`，则只需要传入回调函数。如果出参描述`无`，则可在同步调用返回的对象，或者异步调用返回的对象里面只有err属性，如果有出参描述，则可在返回的对象里面找到该属性对应的值。若函数无特别说明，ukey的函数调用均遵守此规则！
-### 01 创建USBKEY设备上下文并打开USBKEY设备
-函数名称：**`ukeyOpenDevice`**   
+
+### **`ukeyEnumDevice`** 
+枚举所有设备，并返回设备的序列号列表(暂不能使用)   
 入参：
-* 无  
+* 无 
+
+出参：
+* `devices`: Array 所有设备的名称
+
+### **`ukeyOpenDevice`**  
+创建USBKEY设备上下文并打开USBKEY设备   
+入参：
+* `pbDevSN`: String 需要打开设备的序列号  
+
+出参：
+* `phDev`: Integer 设备操作句柄
+
+### **`ukeyCloseDevice`**  
+关闭USBKEY设备，并释放设备上下文    
+入参：
+* `hDev`: Integer 连接设备时返回的设备句柄  
 
 出参：
 * 无
 
-### 02 关闭USBKEY设备，并释放设备上下文
-函数名称：**`ukeyCloseDevice`**   
+### **`ukeyFormatDevice`**  
+初始化设备       
 入参：
-* 无  
+* `hDev`: Integer 连接设备时返回的设备句柄  
+* `pbSoPin`: String 管理员PIN   
 
 出参：
 * 无
 
-### 03 验证用户口令
-函数名称：**`ukeyVerifyPin`**   
+### **`IsDefaultPin`**  
+判断是否是初始PIN          
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄  
+* `dwPinType`: Integer PIN类型 0：管理员PIN，1：用户PIN
+
+出参：
+* `pbDefaultPin`: Boolean true 初始PIN，false 非初始PIN
+
+### **`ukeyVerifyPin`**  
+验证用户口令   
+入参：
+* `hDev`: Integer 连接设备时返回的设备句柄  
+* `dwPinType`: Integer PIN类型 0：管理员PIN，1：用户PIN
 * `pbUserPin`: String 用户PIN   
 
 出参：
-* 无
+* `pdwRetryCount`: Integer 出错后返回的重试次数
 
-### 04 在USBKEY中生成指定类型的密钥对
-函数名称：**`ukeyRSAGenKey`**   
+### **`ukeyChangePin`**  
+修改用户口令          
 入参：
-* 无  
+* `hDev`: Integer 连接设备时返回的设备句柄  
+* `dwPinType`: Integer PIN类型 0：管理员PIN，1：用户PIN
+* `pbOldPin`: String 旧PIN 
+* `pbNewPin`: String 新PIN 
+
+出参：
+* `pbDefaultPin`: Boolean true 初始PIN，false 非初始PIN
+
+### **`ukeyRSAGenKey`**   
+在USBKEY中生成指定类型的密钥对   
+入参：
+* `hDev`: Integer 连接设备时返回的设备句柄 
 
 出参：
 * 无
 
-### 05 在USBKEY中生成指定类型的密钥对
-函数名称：**`ukeyECCGenKey`**   
+### **`ukeyECCGenKey`**
+在USBKEY中生成指定类型的密钥对   
 入参：
-* 无  
+* `hDev`: Integer 连接设备时返回的设备句柄   
 
 出参：
 * 无
 
-### 06 导出指定密钥类型的公钥
-函数名称：**`ukeyRSAGetPubKey`**   
+### **`ukeyRSAGetPubKey`**
+导出指定密钥类型的公钥   
 入参：
-* 无 
+* `hDev`: Integer 连接设备时返回的设备句柄   
 
 出参：
 * `pbPubKey`: String 生成的用户公钥
 
-### 07 导出指定密钥类型的公钥
-函数名称：**`ukeyECCGetPubKey`**   
+### **`ukeyECCGetPubKey`**
+导出指定密钥类型的公钥   
 入参：
-* 无 
+* `hDev`: Integer 连接设备时返回的设备句柄   
 
 出参：
 * `pbPubKey`: String 生成的用户公钥
 
-### 08 导入RSA2048证书到USBKEY中。证书编码格式为PEM或者DER
-函数名称：**`ukeyImportRSACert`**   
+### **`ukeyImportRSACert`**
+导入RSA2048证书到USBKEY中。证书编码格式为PEM或者DER      
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbCert`: String 证书数据(其实是证书路径)   
 
 出参：
 * 无
 
-### 09 导出RSA2048证书。证书编码格式为PEM
-函数名称：**`ukeyExPortRSACert`**   
+### **`ukeyExPortRSACert`**
+导出RSA2048证书。证书编码格式为PEM      
 入参：
-* 无  
+* `hDev`: Integer 连接设备时返回的设备句柄   
 
 出参：
 * `pbCert`: String 证书数据
 
-### 10 RSA加密
-函数名称：**`ukeyRSAEncrypt`**   
+### **`ukeyRSAEncrypt`**
+RSA加密      
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbData`: String 明文数据   
 
 出参：
 * `pbCipher`: String 密文
 
-### 11 支持RSA2048密钥对签名
-函数名称：**`ukeyRSASign`**   
+### **`ukeyRSASign`**
+支持RSA2048密钥对签名       
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `dwHashAlg`: Integer Hash算法，MD5:1,SHA1:2,SHA256:3,SHA3:4   
 * `pbData`: String 待签名消息数据   
 
 出参：
 * `pbSign`: String 签名值
 
-### 12 支持ECDSA签名
-函数名称：**`ukeyECCSign`**   
+### **`ukeyECCSign`**
+支持ECDSA签名       
 入参：
-* `pbMsgRlp`: String 待签名消息数据   
+* `hDev`: Integer 连接设备时返回的设备句柄   
+* `pbMsgRlp`: String 待签名消息数据，需要注意的是，数据必须是RLP的编码方式。   
 
 出参：
 * `pbSignRlp`: String 签名值
 
-### 13 支持RSA2048密钥对验签
-函数名称：**`ukeyRSAVerifySign`**   
+### **`ukeyRSAVerifySign`**
+支持RSA2048密钥对验签       
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `dwHashAlg`: Integer Hash算法，MD5:1,SHA1:2,SHA256:3,SHA3:4   
 * `pbData`: String 待签名消息数据   
 * `pbSign`: String 签名值   
@@ -306,17 +356,19 @@ ukey常用方法说明
 出参：
 * 无
 
-### 14 支持ECC验签
-函数名称：**`ukeyECCVerifySign`**   
+### **`ukeyECCVerifySign`** 
+支持ECC验签   
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbSignRlp`: String 签名值   
 
 出参：
 * 无
 
-### 15 根据广播加密算法机制对数据进行加密
-函数名称：**`ukeyEnc`**   
+### **`ukeyEnc`**
+根据广播加密算法机制对数据进行加密   
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbMessage`: String 待加密的明文数据   
 * `dwGroupNum`: Integer 群成员个数（小于100）   
 * `pbGroup_PubKey`: String 群成员公钥（长度nGroupNum*Point_Len）   
@@ -324,59 +376,65 @@ ukey常用方法说明
 出参：
 * `pbCipherText`: String 密文
 
-### 16 ECC广播解密
-函数名称：**`ukeyDec`**   
+### **`ukeyDec`**
+ECC广播解密   
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbCipherText`: String 密文数据   
 * `dwGroupNum`: Integer 群成员个数（小于100）   
 
 出参：
 * `pbMessage`: String 解密的明文数据
 
-### 17 判断用户私钥和系统公钥是否已导入
-函数名称：**`ukeyCheckKeyPair`**   
+### **`ukeyCheckKeyPair`**
+判断用户私钥和系统公钥是否已导入   
 入参：
-* 无
+* `hDev`: Integer 连接设备时返回的设备句柄   
 
 出参：
 * 无
 
-### 18 导入群签名系统公钥
-函数名称：**`ukeyImportMPubKey`**   
+### **`ukeyImportMPubKey`**
+导入群签名系统公钥   
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbMPubKey`: String 群签名系统公钥   
 
 出参：
 * 无
 
-### 19 导入群签名用户私钥
-函数名称：**`ukeyImportUPriKey`**   
+### **`ukeyImportUPriKey`**
+导入群签名用户私钥   
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbUPriKey`: String 群签名用户私钥   
 
 出参：
 * 无
 
-### 20 群签名
-函数名称：**`ukeyGSSign`**   
+### **`ukeyGSSign`**
+群签名   
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbHash`: String 签名消息的摘要   
 
 出参：
 * `pbSign`: String 签名值
 
-### 21 群签名验签
-函数名称：**`ukeyGSVerify`**   
+### **`ukeyGSVerify`**
+群签名验签   
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbHash`: String 签名消息的摘要   
 * `pbSign`: String 签名值   
 
 出参：
 * 无
 
-### 22 交易隐私保护接口：即以交易为输入，先对交易进行ECDSA签名，再对整个数据和签名进行广播加密，最后对整个密文进行群签名作为输出(暂不能用)
-函数名称：**`ukeyTradeSignProtect`**   
+### **`ukeyTradeSignProtect`**
+交易隐私保护接口：即以交易为输入，先对交易进行ECDSA签名，再对整个数据和签名进行广播加密，最后对整个密文进行群签名作为输出(暂不能用)   
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbMsg`: String 待签名的交易数据原文   
 * `dwGroupNum`: Integer 群成员个数（小于100）   
 * `pbGroup_PubKey`: String 群成员公钥（长度nGroupNum*Point_Len）   
@@ -384,26 +442,28 @@ ukey常用方法说明
 出参：
 * `pbSign`: 签名值
 
-### 23 暂无描述，待确定
-函数名称：**`ukeyWDScardEncryptECIES`**   
+### **`ukeyWDScardEncryptECIES`**
+暂无描述，待确定   
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbData`: String 待签名消息数据   
 
 出参：
 * `pbEncryptedData`: String 加密后的数据
 
-### 24 暂无描述，待确定
-函数名称：**`ukeyWDScardDecryptECIES`**   
+### **`ukeyWDScardDecryptECIES`**
+暂无描述，待确定   
 入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbEncryptedData`: String 加密后的数据   
 
 出参：
 * `pbDecryptedData`: String 原始数据
 
-### 25 获取地址
-函数名称：**`ukeyECCAddress`**   
+### **`ukeyECCAddress`**
+获取地址   
 入参：
-* 无 
+* `hDev`: Integer 连接设备时返回的设备句柄   
 
 出参：
 * `address`: String 地址信息

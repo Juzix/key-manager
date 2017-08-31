@@ -245,7 +245,7 @@ module.exports = {
             address: null,
         }
         if (r.err === 0) {
-            ret.address = sha3(ret.pbPubKey, { outputLength: 256 }).toString().slice(-40);
+            ret.address = '0x' + sha3(ret.pbPubKey, { outputLength: 256 }).toString().slice(-40);
         }
         isFunction(cb) && cb(ret.err, ret);
         return ret;
@@ -578,6 +578,7 @@ module.exports = {
                     keythereum.dump(password, dk.privateKey, dk.salt, dk.iv, options, function (keyObject) {
                         if (keyObject) {
                             keyObject.username = username;
+                            keyObject.address = '0x' + keyObject.address;                            
                         } else {
                             err = 2;
                         }

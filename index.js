@@ -48,7 +48,7 @@ if (os.platform() === 'win32') {
         'J_BC_WD_ExPortRSACert': ['int', ['uint64', 'string', dwordPoint]],  // 13 
         'J_BC_WD_RSAEncrypt': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 14 
         'J_BC_WD_RSASign': ['int', ['uint64', 'int', 'string', 'int', 'string', dwordPoint]],  // 15 
-        'J_BC_WD_ECCSign': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 16 
+        'J_BC_WD_ECCSign': ['int', ['uint64', 'string', 'int', 'string', 'int', 'string', dwordPoint]],  // 16 
         'J_BC_WD_RSAVerifySign': ['int', ['uint64', 'int', 'string', 'int', 'string']], // 17  
         'J_BC_WD_ECCVerifySign': ['int', ['uint64', 'string']],  // 18 
         'J_BC_BE_Enc': ['int', ['uint64', 'string', 'int', 'int', 'string', 'string', dwordPoint]],  // 19
@@ -58,9 +58,11 @@ if (os.platform() === 'win32') {
         'J_BC_GS_ImportUPriKey': ['int', ['uint64', 'string', 'int']],  // 23 
         'J_BC_GS_Sign': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 24
         'J_BC_GS_Verify': ['int', ['uint64', 'string', 'int', 'string', 'int']],  // 25
-        'J_BC_WD_TradeSignProtect': ['int', ['uint64', 'string', 'int', 'int', 'string', 'string', dwordPoint]],  // 26
+        'J_BC_WD_TradeSignProtect': ['int', ['uint64', 'string', 'int', 'string', 'int', 'int', 'string', 'string', dwordPoint]],  // 26
         'WDScardEncrypt_ECIES': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 27
         'WDScardDecrypt_ECIES': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 28 
+        'J_BC_WD_WriteData': ['int', ['uint64', 'string', 'int']],  // 29 
+        'J_BC_WD_ReadData': ['int', ['uint64', 'string', dwordPoint]],  // 30 
     });
 }
 
@@ -91,7 +93,7 @@ module.exports = {
         if (err === 0) {
             pdwSizeLen = pdwSizeLen.readUInt32LE();
             pbNameList = pbNameList.toString('ascii', 0, pdwSizeLen);
-            pbNameList = pbNameList.split('\0\0');
+            pbNameList = pbNameList.split("\u0000");
             pbNameList = pbNameList.filter((name) => name != '');
         }
 
@@ -317,15 +319,16 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 16 J_BC_WD_ECCSign (IN HANDLE hDev, IN BYTE* pbMsgRlp,IN DWORD dwMsgRlpLen, OUT BYTE*pbSignRlp, OUT DWORD*pdwSignLen);
-    ukeyECCSign: function (hDev, pbMsgRlp, cb) {
+    // 16 J_BC_WD_ECCSign (IN HANDLE hDev, IN BYTE* pbMsgRlp,IN DWORD dwMsgRlpLen, IN BYTE* pbShowData,IN DWORD dwShowLen, OUT BYTE*pbSignRlp, OUT DWORD*pdwSignLen);
+    ukeyECCSign: function (hDev, pbMsgRlp, pbShowData, cb) {
         var pbMsgRlp = Buffer.from(pbMsgRlp, 'hex');
         var dwMsgRlpLen = pbMsgRlp.length;
+        // pbShowData = Buffer.from(pbShowData, 'ascii');
+        var dwShowLen = pbShowData.length;
         var pbSignRlp = Buffer.alloc(1024);
         var pdwSignLen = ref.alloc('ulong');
         pdwSignLen.writeUInt32LE(pbSignRlp.length);
-
-        var err = c(ukey && ukey.J_BC_WD_ECCSign(hDev, pbMsgRlp, dwMsgRlpLen, pbSignRlp, pdwSignLen));
+        var err = c(ukey && ukey.J_BC_WD_ECCSign(hDev, pbMsgRlp, dwMsgRlpLen, pbShowData, dwShowLen, pbSignRlp, pdwSignLen));     
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
             pbSignRlp = pbSignRlp.toString('hex', 0, pdwSignLen);
@@ -471,16 +474,17 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
-    // 26 J_BC_WD_TradeSignProtect(IN HANDLE hDev, IN  BYTE *pbMsg, IN DWORD dwMsg, IN DWORD dwGroupNum, IN BYTE *pbGroup_PubKey, OUT BYTE *pbSign, OUT DWORD *pdwSignLen)
-    ukeyTradeSignProtect: function (hDev, pbMsg, dwGroupNum, pbGroup_PubKey, cb) {
+    // 26 J_BC_WD_TradeSignProtect(IN HANDLE hDev, IN  BYTE *pbMsg, IN DWORD dwMsg, IN BYTE* pbShowData, IN DWORD dwShowLen, IN DWORD dwGroupNum, IN BYTE *pbGroup_PubKey, OUT BYTE *pbSign, OUT DWORD *pdwSignLen)
+    ukeyTradeSignProtect: function (hDev, pbMsg, pbShowData, dwGroupNum, pbGroup_PubKey, cb) {
         pbMsg = Buffer.from(pbMsg, 'hex');
         var dwMsg = pbMsg.length;
+        var dwShowLen = pbShowData.length;
         pbGroup_PubKey = Buffer.from(pbGroup_PubKey, 'hex');
         var pbSign = Buffer.alloc(1024);
         var pdwSignLen = ref.alloc('ulong');
         pdwSignLen.writeUInt32LE(pbSign.length);
 
-        var err = c(ukey && ukey.J_BC_WD_TradeSignProtect(hDev, pbMsg, dwMsg, dwGroupNum, pbGroup_PubKey, pbSign, pdwSignLen));
+        var err = c(ukey && ukey.J_BC_WD_TradeSignProtect(hDev, pbMsg, dwMsg, pbShowData, dwShowLen, dwGroupNum, pbGroup_PubKey, pbSign, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
             pbSign = pbSign.toString('hex', 0, pdwSignLen);
@@ -532,6 +536,37 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
+
+    // 29 J_BC_WD_WriteData(IN HANDLE hDev, IN LPBYTE pbData, IN DWORD dwDataLen)
+    ukeyWriteData: function(hDev, pbData, cb){
+        var dwDataLen = pbData.length;
+        var err = c(ukey && ukey.J_BC_WD_WriteData(hDev, pbData, dwDataLen));
+        var ret = {
+            err: err,
+        }
+        isFunction(cb) && cb(err, ret);
+        return ret;        
+    },
+
+    // 30 J_BC_WD_ReadData(IN HANDLE hDev, OUT LPBYTE pbData, OUT DWORD *pdwDataLen)
+    ukeyReadData: function(hDev, cb){
+        var pbData = Buffer.alloc(4096);
+        var pdwDataLen = ref.alloc('ulong');
+        pdwDataLen.writeUInt32LE(pbData.length);
+        var err = c(ukey && ukey.J_BC_WD_ReadData(hDev, pbData, pdwDataLen));
+        if (err === 0) {
+            pdwDataLen = pdwDataLen.readUInt32LE();
+            pbData = pbData.toString('ascii', 0, pdwDataLen);
+        }
+        var ret = {
+            err: err,
+            pbData: pbData,
+        }
+        isFunction(cb) && cb(err, ret);
+        return ret;        
+    },
+
+
     // 以下为文件证书函数
     browser: typeof process === "undefined" || !process.nextTick || Boolean(process.browser),
     setParams: function (_params) {

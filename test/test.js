@@ -4,6 +4,7 @@ var key = require('../index.js');
 require('mocha-steps');
 
 var skip = it.skip;
+var only = it.only;
 describe("开始ukey测试...", function () {
     var config = null;
     try {
@@ -15,6 +16,7 @@ describe("开始ukey测试...", function () {
     step('01 测试获取序列号列表：ukeyEnumDevice', function (done) {
         key.ukeyEnumDevice(function (err, ret) {
             expect(ret.err).to.be.equal(0);
+            expect(ret.pbNameList).to.have.length.least(1);
             if (ret.err === 0) {
                 config.pbDevSN = ret.pbNameList[0]; // 默认用第一个来测试
             }
@@ -121,14 +123,14 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    step('12 导入RSA2048证书到USBKEY中：ukeyImportRSACert', function (done) {
+    it('12 导入RSA2048证书到USBKEY中：ukeyImportRSACert', function (done) {
         key.ukeyImportRSACert(config.hDev, config.pbCert, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             done();
         })
     });
 
-    step('13 导出RSA2048证书：ukeyExPortRSACert', function (done) {
+    it('13 导出RSA2048证书：ukeyExPortRSACert', function (done) {
         key.ukeyExPortRSACert(config.hDev, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             done();
@@ -156,8 +158,8 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    step('16 18 ECDSA签名，ECC验签：ukeyECCSign，ukeyECCVerifySign', function (done) {
-        key.ukeyECCSign(config.hDev, config.pbMsgRlp, function (err, ret) {
+    it('16 18 ECDSA签名，ECC验签：ukeyECCSign，ukeyECCVerifySign', function (done) {
+        key.ukeyECCSign(config.hDev, config.pbMsgRlp, config.pbShowData, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             if (ret.err === 0) {
                 key.ukeyECCVerifySign(config.hDev, ret.pbSignRlp, function (err, ret) {
@@ -235,11 +237,26 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    step('26 交易隐私保护接口：ukeyTradeSignProtect', function (done) {
+    it('26 交易隐私保护接口：ukeyTradeSignProtect', function (done) {
         config.pbGroup_PubKey = config.pbMPubKey.repeat(config.dwGroupNum);
-        key.ukeyTradeSignProtect(config.hDev, config.pbMsg, config.dwGroupNum, config.pbGroup_PubKey, function (err, ret) {
+        key.ukeyTradeSignProtect(config.hDev, config.pbMsg, config.pbShowData, config.dwGroupNum, config.pbGroup_PubKey, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             done();
+        })
+    });
+    step('29 30 写数据到设备中，从数据中读取设备：ukeyWriteData，ukeyReadData', function (done) {
+        var pbData = config.dataToKey;
+        key.ukeyWriteData(config.hDev, pbData, function (err, ret) {
+            expect(ret.err).to.be.equal(0);
+            if (ret.err === 0) {
+                key.ukeyReadData(config.hDev, function (err, ret) {
+                    expect(ret.err).to.be.equal(0);
+                    expect(ret.pbData).to.equal(pbData);
+                    done();
+                })
+            } else {
+                done();
+            }
         })
     });
 

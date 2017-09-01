@@ -32,6 +32,13 @@ var boolPoint = ref.refType(ref.types.bool);
 if (os.platform() === 'win32') {
     var dllName = (os.arch() === 'x64') ? ('WDJuZhenAPIx64') : ('WDJuZhenAPIx86');
     var dllPath = path.join(__dirname, 'dynamic', dllName);
+    if (!fs.existsSync(dllPath)) {
+        if (os.arch() === 'x64') {
+            dllPath = path.join("c", "Windows", "System32", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
+        } else {
+            dllPath = path.join("c", "Windows", "SysWOW64", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
+        }
+    }
     ukey = ffi.Library(dllPath, {
         'J_BC_WD_EnumDevice': ['int', ['string', dwordPoint]],  // 01 
         'J_BC_WD_OpenDevice': ['int', ['string', uint64Point]],  // 02 

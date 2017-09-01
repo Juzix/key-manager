@@ -206,7 +206,7 @@ ukey常用方法说明
 关于`入参`与`出参`的说明：如果有入参，则按照入参的描述，依次传入参数，最后传入回调函数。如果入参描述`无`，则只需要传入回调函数。如果出参描述`无`，则可在同步调用返回的对象，或者异步调用返回的对象里面只有err属性，如果有出参描述，则可在返回的对象里面找到该属性对应的值。若函数无特别说明，ukey的函数调用均遵守此规则！
 
 ### **`ukeyEnumDevice`** 
-枚举所有设备，并返回设备的序列号列表 
+枚举所有设备，并返回设备的序列号列表   
 入参：
 * 无 
 
@@ -341,6 +341,7 @@ RSA加密
 入参：
 * `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbMsgRlp`: String 待签名消息数据，需要注意的是，数据必须是RLP的编码方式。   
+* `pbShowData`: String 在Ukey上的提示信息。   
 
 出参：
 * `pbSignRlp`: String 签名值
@@ -436,6 +437,7 @@ ECC广播解密
 入参：
 * `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbMsg`: String 待签名的交易数据原文   
+* `pbShowData`: String 在Ukey上的提示信息   
 * `dwGroupNum`: Integer 群成员个数（小于100）   
 * `pbGroup_PubKey`: String 群成员公钥（长度nGroupNum*Point_Len）   
 
@@ -467,4 +469,21 @@ ECC广播解密
 
 出参：
 * `address`: String 地址信息
+
+### **`ukeyWriteData`**
+将用户数据写入设备中。(不超过2K)     
+入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
+* `pbData`: String 写入的数据，注意不能超过2k，不要写中文。   
+
+出参：
+* 无
+
+### **`ukeyReadData`**
+从设备中读取用户数据      
+入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
+
+出参：
+* `pbData`: String 写入的数据。  
 

@@ -34,9 +34,9 @@ if (os.platform() === 'win32') {
     var dllPath = path.join(__dirname, 'dynamic', dllName);
     if (!fs.existsSync(dllPath)) {
         if (os.arch() === 'x64') {
-            dllPath = path.join("c", "Windows", "System32", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
+            dllPath = path.join("c:", "Windows", "System32", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
         } else {
-            dllPath = path.join("c", "Windows", "SysWOW64", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
+            dllPath = path.join("c:", "Windows", "SysWOW64", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
         }
     }
     ukey = ffi.Library(dllPath, {

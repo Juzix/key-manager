@@ -8,7 +8,7 @@
 -----
 1. 大部分文件方法提供同步以及异步的调用。建议使用均使用异步调用。异步调用大部分回调函数均以`function(err, data1, data2, ...){}`返回，第一个参数是错误返回代码，0为正常，其他为异常。
 2. 所有ukey的调用函数均为ukey开头，用来区分与文件证书的函数接口。
-3. 如果需要使用ukey的接口，首先需要安装ukey的驱动，clone下来之后，文件为`./dynamic/JuZhenUSBKey.exe`。然后需要安装node-gyp的环境：[node-gyp环境搭建](https://github.com/nodejs/node-gyp#installation)。安装好node-gyp环境之后，因为执行`npm install`的时候使用的node的版本可能跟electron使用的版本不一致，所以你需要重新安装（其实就是用electron依赖的node版本重新编译）key-manager依赖的包，官方文档[Using Native Node Modules](https://electron.atom.io/docs/tutorial/using-native-node-modules/)供参考。这里也有一篇中文[Electron 使用 Node 原生模块](http://www.jianshu.com/p/9ce7a9ccdc78)供参考。上面的中文参考我使用命令没法设置成功，最后我只直接把下面的配置拷贝到了.npmrc文件下面。下面配置仅供参考。当然，安装过程需要全局翻墙，你懂的！
+3. 如果需要使用ukey的接口，首先需要安装ukey的驱动，如果有旧的驱动，需要到控制面板里面先卸装，不能进行覆盖安装。clone下来之后，文件为`./dynamic/JuZhenUSBKey.exe`。然后需要安装node-gyp的环境：[node-gyp环境搭建](https://github.com/nodejs/node-gyp#installation)。安装好node-gyp环境之后，因为执行`npm install`的时候使用的node的版本可能跟electron使用的版本不一致，所以你需要重新安装（其实就是用electron依赖的node版本重新编译）key-manager依赖的包，官方文档[Using Native Node Modules](https://electron.atom.io/docs/tutorial/using-native-node-modules/)供参考。这里也有一篇中文[Electron 使用 Node 原生模块](http://www.jianshu.com/p/9ce7a9ccdc78)供参考。上面的中文参考我使用命令没法设置成功，最后我只直接把下面的配置拷贝到了.npmrc文件下面。下面配置仅供参考。当然，安装过程需要全局翻墙，你懂的！
 ```
 target=1.7.5  -- 你的electron版本
 arch=x64   -- 你的系统位数

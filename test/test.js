@@ -237,7 +237,7 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    it('26 交易隐私保护接口：ukeyTradeSignProtect', function (done) {
+    skip('26 交易隐私保护接口：ukeyTradeSignProtect', function (done) {
         config.pbGroup_PubKey = config.pbMPubKey.repeat(config.dwGroupNum);
         key.ukeyTradeSignProtect(config.hDev, config.pbMsg, config.pbShowData, config.dwGroupNum, config.pbGroup_PubKey, function (err, ret) {
             expect(ret.err).to.be.equal(0);

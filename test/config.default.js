@@ -2,7 +2,7 @@ module.exports = {
     hDev: -1, // 打开设备之后返回的句柄
     pbDevSN: 'JUZHEN0123456787',
     pbUserPin: '123456',  // 用户pin
-    pbAdminPin: '123456',  // 管理员pin
+    pbAdminPin: 'jz1234',  // 管理员pin
     pbNewUserPin: '123456',  // 用户pin
     pbNewAdminPin: '123456',  // 管理员pin
     pbCert: '../data/ca.crt.pem',// 导入证书路径
@@ -25,4 +25,5 @@ module.exports = {
         USER_TYPE: 1,// 普通用户PIN类型
     },
     dataToKey: new Date().getTime().toString(), // 写到key里面的数据
+    pbShowData: "i love this world",
 }

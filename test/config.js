@@ -1,7 +1,7 @@
 module.exports = {
     hDev: -1, // 打开设备之后返回的句柄
     pbDevSN: 'JUZHEN0123456787',
-    pbUserPin: 'jz8888',  // 用户pin
+    pbUserPin: '123456',  // 用户pin
     pbAdminPin: 'jz1234',  // 管理员pin
     pbNewUserPin: '123456',  // 用户pin
     pbNewAdminPin: '123456',  // 管理员pin
@@ -25,5 +25,5 @@ module.exports = {
         USER_TYPE: 1,// 普通用户PIN类型
     },
     dataToKey: new Date().getTime().toString(), // 写到key里面的数据
-    pbShowData: "i love this world",
+    pbShowData: "我爱 this world 呵呵哒",
 }

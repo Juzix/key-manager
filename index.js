@@ -33,44 +33,51 @@ if (os.platform() === 'win32') {
     var dllName = (os.arch() === 'x64') ? ('WDJuZhenAPIx64') : ('WDJuZhenAPIx86');
     var dllPath = path.join(__dirname, 'dynamic', dllName);
     if (!fs.existsSync(dllPath)) {
-        if (os.arch() === 'x64') {
-            dllPath = path.join("c:", "Windows", "System32", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
-        } else {
-            dllPath = path.join("c:", "Windows", "SysWOW64", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
+        if (os.platform() === 'win32') {
+            if (os.arch() === 'x64') {
+                dllPath = path.join("c:", "Windows", "System32", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
+            } else {
+                dllPath = path.join("c:", "Windows", "SysWOW64", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
+            }
         }
     }
-    ukey = ffi.Library(dllPath, {
-        'J_BC_WD_EnumDevice': ['int', ['string', dwordPoint]],  // 01 
-        'J_BC_WD_OpenDevice': ['int', ['string', uint64Point]],  // 02 
-        'J_BC_WD_CloseDevice': ['int', ['uint64']],  // 03 
-        'J_BC_WD_FormatDevice': ['int', ['uint64', 'string']],  // 04 
-        'J_BC_WD_IsDefaultPin': ['int', ['uint64', 'int', boolPoint]],  // 05 
-        'J_BC_WD_VerifyPin': ['int', ['uint64', 'ulong', 'string', dwordPoint]],  // 06 
-        'J_BC_WD_ChangePin': ['int', ['uint64', 'ulong', 'string', 'string', dwordPoint]],  // 07 
-        'J_BC_WD_RSAGenKey': ['int', ['uint64']],  // 08 
-        'J_BC_WD_ECCGenKey': ['int', ['uint64']],  // 09 
-        'J_BC_WD_RSAGetPubKey': ['int', ['uint64', 'string', dwordPoint]],  // 10 
-        'J_BC_WD_ECCGetPubKey': ['int', ['uint64', 'string', dwordPoint]],  // 11 
-        'J_BC_WD_ImportRSACert': ['int', ['uint64', 'string']],  // 12 
-        'J_BC_WD_ExPortRSACert': ['int', ['uint64', 'string', dwordPoint]],  // 13 
-        'J_BC_WD_RSAEncrypt': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 14 
-        'J_BC_WD_RSASign': ['int', ['uint64', 'int', 'string', 'int', 'string', dwordPoint]],  // 15 
-        'J_BC_WD_ECCSign': ['int', ['uint64', 'string', 'int', 'string', 'int', 'string', dwordPoint]],  // 16 
-        'J_BC_WD_RSAVerifySign': ['int', ['uint64', 'int', 'string', 'int', 'string']], // 17  
-        'J_BC_WD_ECCVerifySign': ['int', ['uint64', 'string']],  // 18 
-        'J_BC_BE_Enc': ['int', ['uint64', 'string', 'int', 'int', 'string', 'string', dwordPoint]],  // 19
-        'J_BC_BE_Dec': ['int', ['uint64', 'string', 'int', 'int', 'string', dwordPoint]],  // 20
-        'J_BC_GS_CheckKeyPair': ['int', ['uint64']],  // 21
-        'J_BC_GS_ImportMPubKey': ['int', ['uint64', 'string', 'int']],  // 22
-        'J_BC_GS_ImportUPriKey': ['int', ['uint64', 'string', 'int']],  // 23 
-        'J_BC_GS_Sign': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 24
-        'J_BC_GS_Verify': ['int', ['uint64', 'string', 'int', 'string', 'int']],  // 25
-        'J_BC_WD_TradeSignProtect': ['int', ['uint64', 'string', 'int', 'string', 'int', 'int', 'string', 'string', dwordPoint]],  // 26
-        'WDScardEncrypt_ECIES': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 27
-        'WDScardDecrypt_ECIES': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 28 
-        'J_BC_WD_WriteData': ['int', ['uint64', 'string', 'int']],  // 29 
-        'J_BC_WD_ReadData': ['int', ['uint64', 'string', dwordPoint]],  // 30 
-    });
+
+    if (fs.existsSync(dllPath)) {
+        ukey = ffi.Library(dllPath, {
+            'J_BC_WD_EnumDevice': ['int', ['string', dwordPoint]],  // 01 
+            'J_BC_WD_OpenDevice': ['int', ['string', uint64Point]],  // 02 
+            'J_BC_WD_CloseDevice': ['int', ['uint64']],  // 03 
+            'J_BC_WD_FormatDevice': ['int', ['uint64', 'string']],  // 04 
+            'J_BC_WD_IsDefaultPin': ['int', ['uint64', 'int', boolPoint]],  // 05 
+            'J_BC_WD_VerifyPin': ['int', ['uint64', 'ulong', 'string', dwordPoint]],  // 06 
+            'J_BC_WD_ChangePin': ['int', ['uint64', 'ulong', 'string', 'string', dwordPoint]],  // 07 
+            'J_BC_WD_RSAGenKey': ['int', ['uint64']],  // 08 
+            'J_BC_WD_ECCGenKey': ['int', ['uint64']],  // 09 
+            'J_BC_WD_RSAGetPubKey': ['int', ['uint64', 'string', dwordPoint]],  // 10 
+            'J_BC_WD_ECCGetPubKey': ['int', ['uint64', 'string', dwordPoint]],  // 11 
+            'J_BC_WD_ImportRSACert': ['int', ['uint64', 'string']],  // 12 
+            'J_BC_WD_ExPortRSACert': ['int', ['uint64', 'string', dwordPoint]],  // 13 
+            'J_BC_WD_RSAEncrypt': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 14 
+            'J_BC_WD_RSASign': ['int', ['uint64', 'int', 'string', 'int', 'string', dwordPoint]],  // 15 
+            'J_BC_WD_ECCSign': ['int', ['uint64', 'string', 'int', 'string', 'int', 'string', dwordPoint]],  // 16 
+            'J_BC_WD_RSAVerifySign': ['int', ['uint64', 'int', 'string', 'int', 'string']], // 17  
+            'J_BC_WD_ECCVerifySign': ['int', ['uint64', 'string']],  // 18 
+            'J_BC_BE_Enc': ['int', ['uint64', 'string', 'int', 'int', 'string', 'string', dwordPoint]],  // 19
+            'J_BC_BE_Dec': ['int', ['uint64', 'string', 'int', 'int', 'string', dwordPoint]],  // 20
+            'J_BC_GS_CheckKeyPair': ['int', ['uint64']],  // 21
+            'J_BC_GS_ImportMPubKey': ['int', ['uint64', 'string', 'int']],  // 22
+            'J_BC_GS_ImportUPriKey': ['int', ['uint64', 'string', 'int']],  // 23 
+            'J_BC_GS_Sign': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 24
+            'J_BC_GS_Verify': ['int', ['uint64', 'string', 'int', 'string', 'int']],  // 25
+            'J_BC_WD_TradeSignProtect': ['int', ['uint64', 'string', 'int', 'string', 'int', 'int', 'string', 'string', dwordPoint]],  // 26
+            'WDScardEncrypt_ECIES': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 27
+            'WDScardDecrypt_ECIES': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 28 
+            'J_BC_WD_WriteData': ['int', ['uint64', 'string', 'int']],  // 29 
+            'J_BC_WD_ReadData': ['int', ['uint64', 'string', dwordPoint]],  // 30 
+        });
+    } else {
+        console.error('WatchDataV5 not exit!')
+    }
 }
 
 function keccak256(buffer) {
@@ -88,6 +95,19 @@ function c(err) {
         case 0: return 1;
         default: return err;
     }
+}
+
+function getBLen(str) {
+    var len = 0;
+    for (var i = 0; i < str.length; i++) {
+        var c = str.charCodeAt(i);
+        if ((c >= 0x0001 && c <= 0x007e) || (0xff60 <= c && c <= 0xff9f)) {
+            len++;
+        } else {
+            len += 3;
+        }
+    }
+    return len;
 }
 
 module.exports = {
@@ -330,12 +350,11 @@ module.exports = {
     ukeyECCSign: function (hDev, pbMsgRlp, pbShowData, cb) {
         var pbMsgRlp = Buffer.from(pbMsgRlp, 'hex');
         var dwMsgRlpLen = pbMsgRlp.length;
-        // pbShowData = Buffer.from(pbShowData, 'ascii');
-        var dwShowLen = pbShowData.length;
+        var dwShowLen = getBLen(pbShowData);
         var pbSignRlp = Buffer.alloc(1024);
         var pdwSignLen = ref.alloc('ulong');
         pdwSignLen.writeUInt32LE(pbSignRlp.length);
-        var err = c(ukey && ukey.J_BC_WD_ECCSign(hDev, pbMsgRlp, dwMsgRlpLen, pbShowData, dwShowLen, pbSignRlp, pdwSignLen));     
+        var err = c(ukey && ukey.J_BC_WD_ECCSign(hDev, pbMsgRlp, dwMsgRlpLen, pbShowData, dwShowLen, pbSignRlp, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
             pbSignRlp = pbSignRlp.toString('hex', 0, pdwSignLen);
@@ -485,7 +504,7 @@ module.exports = {
     ukeyTradeSignProtect: function (hDev, pbMsg, pbShowData, dwGroupNum, pbGroup_PubKey, cb) {
         pbMsg = Buffer.from(pbMsg, 'hex');
         var dwMsg = pbMsg.length;
-        var dwShowLen = pbShowData.length;
+        var dwShowLen = getBLen(pbShowData);
         pbGroup_PubKey = Buffer.from(pbGroup_PubKey, 'hex');
         var pbSign = Buffer.alloc(1024);
         var pdwSignLen = ref.alloc('ulong');
@@ -545,18 +564,18 @@ module.exports = {
     },
 
     // 29 J_BC_WD_WriteData(IN HANDLE hDev, IN LPBYTE pbData, IN DWORD dwDataLen)
-    ukeyWriteData: function(hDev, pbData, cb){
+    ukeyWriteData: function (hDev, pbData, cb) {
         var dwDataLen = pbData.length;
         var err = c(ukey && ukey.J_BC_WD_WriteData(hDev, pbData, dwDataLen));
         var ret = {
             err: err,
         }
         isFunction(cb) && cb(err, ret);
-        return ret;        
+        return ret;
     },
 
     // 30 J_BC_WD_ReadData(IN HANDLE hDev, OUT LPBYTE pbData, OUT DWORD *pdwDataLen)
-    ukeyReadData: function(hDev, cb){
+    ukeyReadData: function (hDev, cb) {
         var pbData = Buffer.alloc(4096);
         var pdwDataLen = ref.alloc('ulong');
         pdwDataLen.writeUInt32LE(pbData.length);
@@ -570,7 +589,7 @@ module.exports = {
             pbData: pbData,
         }
         isFunction(cb) && cb(err, ret);
-        return ret;        
+        return ret;
     },
 
 
@@ -620,7 +639,7 @@ module.exports = {
                     keythereum.dump(password, dk.privateKey, dk.salt, dk.iv, options, function (keyObject) {
                         if (keyObject) {
                             keyObject.username = username;
-                            keyObject.address = '0x' + keyObject.address;                            
+                            keyObject.address = '0x' + keyObject.address;
                         } else {
                             err = 2;
                         }

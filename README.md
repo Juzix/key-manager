@@ -238,7 +238,7 @@ ukey常用方法说明
 出参：
 * 无
 
-### **`IsDefaultPin`**  
+### **`ukeyIsDefaultPin`**  
 判断是否是初始PIN          
 入参：
 * `hDev`: Integer 连接设备时返回的设备句柄  

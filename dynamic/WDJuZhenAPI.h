@@ -8,7 +8,7 @@
 #define  WD_JUZHEN_PARAM_ERROR               -1      //输入参数错误
 #define  WD_JUZHEN_MEMORY_ERROR              -2      //传入BUF的空间不足
 #define  WD_JUZHEN_DEV_ERROR                 -3      //打开设备失败
-#define  WD_JUZHEN_NO_KEY                 -4      //没有指定的密钥
+#define  WD_JUZHEN_NO_KEY                    -4      //没有指定的密钥
 #define  WD_JUZHEN_PIN_INCORRECT             -5      //PIN码错误
 #define  WD_JUZHEN_PIN_LOCKED                -6      //PIN码锁死
 #define  WD_JUZHEN_MISSING_SECURITY_STATUS   -7      //使用权限不满足，需要校验PIN码
@@ -532,7 +532,7 @@ WDScardGenKey_PAI
 返回值：
 	0: 失败 1:成功
 ********************************************/
-
+// 31
 LONG32 WINAPI WDScardGenKey_PAI(IN  HANDLE  hDev,IN  DWORD dwKeyLen);
 
 /****************************************************************
@@ -546,6 +546,7 @@ WDScardGetPubKeyn_PAI
   返回值：
   0: 失败 1:成功                                                                      
 *********************************************************************/
+// 32
 LONG32 WINAPI WDScardGetPubKeyn_PAI(IN  HANDLE  hDev,OUT LPBYTE pbPubKey_n,OUT DWORD *dwPubKeyLen);
 
 
@@ -568,6 +569,7 @@ WDScardEncryption_PAI
 返回值：
 	0: 失败 1:成功
 ********************************************/
+// 33
 LONG32 WINAPI WDScardEncryption_PAI(
 									IN HANDLE   hDev,
 									IN LPBYTE   pbMsg,
@@ -597,6 +599,7 @@ WDScardDecryption_PAI
 返回值：
 	0: 失败 1:成功
 ********************************************/
+// 34
 LONG32 WINAPI WDScardDecryption_PAI(
 									IN HANDLE   hDev,
 									IN LPBYTE   pbCipher,
@@ -625,6 +628,7 @@ WDScardHomAdd_PAI
 返回值：
 	0: 失败 1:成功
 ********************************************/
+// 35
 LONG32 WINAPI  WDScardHomAdd_PAI(
 								 IN HANDLE   hDev,
 								 IN LPBYTE   pbCipherA,

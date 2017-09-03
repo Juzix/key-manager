@@ -59,4 +59,4 @@ typings/
 
 keystore/
 package-lock.json
-./test/config.js
+/test/config.js

@@ -123,14 +123,14 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    it('12 导入RSA2048证书到USBKEY中：ukeyImportRSACert', function (done) {
+    skip('12 导入RSA2048证书到USBKEY中：ukeyImportRSACert', function (done) {
         key.ukeyImportRSACert(config.hDev, config.pbCert, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             done();
         })
     });
 
-    it('13 导出RSA2048证书：ukeyExPortRSACert', function (done) {
+    skip('13 导出RSA2048证书：ukeyExPortRSACert', function (done) {
         key.ukeyExPortRSACert(config.hDev, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             done();
@@ -158,7 +158,8 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    it('16 18 ECDSA签名，ECC验签：ukeyECCSign，ukeyECCVerifySign', function (done) {
+    // 需要修改pin码之后才能验证此接口
+    skip('16 18 ECDSA签名，ECC验签：ukeyECCSign，ukeyECCVerifySign', function (done) {
         key.ukeyECCSign(config.hDev, config.pbMsgRlp, config.pbShowData, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             if (ret.err === 0) {
@@ -223,7 +224,7 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    step('24 25 群签名，群签名验签：ukeyGSSign，ukeyGSVerify', function (done) {
+    skip('24 25 群签名，群签名验签：ukeyGSSign，ukeyGSVerify', function (done) {
         key.ukeyGSSign(config.hDev, config.pbHash, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             if (ret.err === 0) {
@@ -257,6 +258,42 @@ describe("开始ukey测试...", function () {
             } else {
                 done();
             }
+        })
+    });
+
+    it('31 产生加解密所需的公私钥对：ukeyWDScardGenKeyPAI', function (done) {
+        key.ukeyWDScardGenKeyPAI(config.hDev, config.dwKeyLen, function (err, ret) {
+            expect(ret.err).to.be.equal(0);
+            done();
+        })
+    });
+
+    it('32 获取用户公钥：ukeyWDScardGetPubKeynPAI', function (done) {
+        key.ukeyWDScardGetPubKeynPAI(config.hDev, function (err, ret) {
+            expect(ret.err).to.be.equal(0);
+            done();
+        })
+    });
+
+    it('33 34 PAI消息加密，解密密文：ukeyWDScardEncryptionPAI，ukeyWDScardDecryptionPAI', function (done) {
+        key.ukeyWDScardEncryptionPAI(config.hDev, config.pbMsgPAI, function (err, ret) {
+            expect(ret.err).to.be.equal(0);
+            if (ret.err === 0) {
+                key.ukeyWDScardDecryptionPAI(config.hDev, ret.pbCipher, function (err, ret) {
+                    expect(ret.err).to.be.equal(0);
+                    expect(ret.pbMsg).to.equal(config.pbMsgPAI);
+                    done();
+                })
+            } else {
+                done();
+            }
+        })
+    });
+
+    it('35 密文同态加：ukeyWDScardHomAddPAI', function (done) {
+        key.ukeyWDScardHomAddPAI(config.hDev, config.pbCipherA, config.pbCipherB, function (err, ret) {
+            expect(ret.err).to.be.equal(0);
+            expect(ret.pbResult).to.equal(config.pbResult);
         })
     });
 

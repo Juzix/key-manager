@@ -74,6 +74,11 @@ if (os.platform() === 'win32') {
             'WDScardDecrypt_ECIES': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 28 
             'J_BC_WD_WriteData': ['int', ['uint64', 'string', 'int']],  // 29 
             'J_BC_WD_ReadData': ['int', ['uint64', 'string', dwordPoint]],  // 30 
+            'WDScardGenKey_PAI': ['int', ['uint64', 'int']],  // 31 
+            'WDScardGetPubKeyn_PAI': ['int', ['uint64', 'string', dwordPoint]],  // 32 
+            'WDScardEncryption_PAI': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 33 
+            'WDScardDecryption_PAI': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 34 
+            'WDScardHomAdd_PAI': ['int', ['uint64', 'string', 'int', 'string', 'int', 'string', dwordPoint]],  // 35 
         });
     } else {
         console.error('WatchDataV5 not exit!')
@@ -184,7 +189,7 @@ module.exports = {
     ukeyVerifyPin: function (hDev, dwPinType, pbUserPin, cb) {
         var pdwRetryCount = ref.alloc('ulong');
         var err = c(ukey && ukey.J_BC_WD_VerifyPin(hDev, dwPinType, pbUserPin, pdwRetryCount));
-        if (err === 0) {
+        if (err != 0) {
             pdwRetryCount = pdwRetryCount.readUInt32LE();
         }
         var ret = {
@@ -198,7 +203,7 @@ module.exports = {
     ukeyChangePin: function (hDev, dwPinType, pbOldPin, pbNewPin, cb) {
         var pdwRetryCount = ref.alloc('ulong');
         var err = c(ukey && ukey.J_BC_WD_ChangePin(hDev, dwPinType, pbOldPin, pbNewPin, pdwRetryCount));
-        if (err === 0) {
+        if (err != 0) {
             pdwRetryCount = pdwRetryCount.readUInt32LE();
         }
         var ret = {
@@ -591,7 +596,91 @@ module.exports = {
         isFunction(cb) && cb(err, ret);
         return ret;
     },
+    // 31 WDScardGenKey_PAI(IN HANDLE hDev,IN DWORD dwKeyLen)
+    ukeyWDScardGenKeyPAI: function (hDev, dwKeyLen, cb) {
+        var err = c(ukey && ukey.WDScardGenKey_PAI(hDev, dwKeyLen));
+        var ret = {
+            err: err,
+        }
+        isFunction(cb) && cb(err, ret);
+        return ret;
+    },
+    // 32 WDScardGetPubKeyn_PAI(IN  HANDLE  hDev,OUT LPBYTE pbPubKey_n,OUT DWORD *dwPubKeyLen);
+    ukeyWDScardGetPubKeynPAI: function (hDev, cb) {
+        var pbPubKey_n = Buffer.alloc(512);
+        var dwPubKeyLen = ref.alloc('ulong');
+        dwPubKeyLen.writeUInt32LE(pbPubKey_n.length);
+        var err = c(ukey && ukey.WDScardGetPubKeyn_PAI(hDev, pbPubKey_n, dwPubKeyLen));
+        if (err === 0) {
+            dwPubKeyLen = dwPubKeyLen.readUInt32LE();
+            pbPubKey_n = pbPubKey_n.toString('hex', 0, dwPubKeyLen);
+        }
+        var ret = {
+            err: err,
+            pbPubKey_n: pbPubKey_n,
+        }
+        isFunction(cb) && cb(err, ret);
+        return ret;
+    },
+    // 33 WDScardEncryption_PAI(IN HANDLE hDev, IN LPBYTE pbMsg, IN DWORD dwMsgLen, OUT LPBYTE pbCipher, OUT LPDWORD pdwCipherLen);
+    ukeyWDScardEncryptionPAI: function (hDev, pbMsg, cb) {
+        var dwMsgLen = pbMsg.length;
+        var pbCipher = Buffer.alloc(1024);
+        var pdwCipherLen = ref.alloc('ulong');
+        pdwCipherLen.writeUInt32LE(pbCipher.length);
 
+        var err = c(ukey && ukey.WDScardEncryption_PAI(hDev, pbMsg, dwMsgLen, pbCipher, pdwCipherLen));
+        if (err === 0) {
+            pdwCipherLen = pdwCipherLen.readUInt32LE();
+            pbCipher = pbCipher.toString('ascii', 0, pdwCipherLen);
+        }
+        var ret = {
+            err: err,
+            pbCipher: pbCipher,
+        }
+        isFunction(cb) && cb(err, ret);
+        return ret;
+    },
+    // 34 WINAPI WDScardDecryption_PAI(IN HANDLE hDev, IN LPBYTE pbCipher, IN DWORD dwCipherLen, OUT LPBYTE pbMsg, OUT LPDWORD pdwMsgLen);
+    ukeyWDScardDecryptionPAI: function (hDev, pbCipher, cb) {
+        var dwCipherLen = pbCipher.length;
+        var pbMsg = Buffer.alloc(1024);
+        var dwMsgLen = ref.alloc('ulong');
+        dwMsgLen.writeUInt32LE(pbMsg.length);
+
+        var err = c(ukey && ukey.WDScardEncryption_PAI(hDev, pbCipher, dwCipherLen, pbMsg, dwMsgLen));
+        if (err === 0) {
+            dwMsgLen = dwMsgLen.readUInt32LE();
+            pbMsg = pbMsg.toString('ascii', 0, dwMsgLen);
+        }
+        var ret = {
+            err: err,
+            pbMsg: pbMsg,
+        }
+        isFunction(cb) && cb(err, ret);
+        return ret;
+    },
+
+    // 35 WDScardHomAdd_PAI(IN HANDLE hDev, IN LPBYTE pbCipherA, IN DWORD dwCipherALen, IN LPBYTE pbCipherB, IN DWORD dwCipherBLen, OUT LPBYTE pbResult, OUT LPDWORD pdwResultLen);
+    ukeyWDScardHomAddPAI: function (hDev, pbCipherA, pbCipherB, cb) {
+        var dwCipherALen = pbCipherA.length;
+        var dwCipherBLen = pbCipherB.length;
+        var pbResult = Buffer.alloc(1024);
+        var pdwResultLen = ref.alloc('ulong');
+        pdwResultLen.writeUInt32LE(pbResult.length);
+
+        var err = c(ukey && ukey.WDScardHomAdd_PAI(hDev, pbCipherA, dwCipherALen, pbCipherB, dwCipherBLen, pbResult, pdwResultLen));
+        if (err === 0) {
+            pdwResultLen = pdwResultLen.readUInt32LE();
+            pbResult = pbResult.toString('ascii', 0, pdwResultLen);
+        }
+        var ret = {
+            err: err,
+            pbResult: pbResult,
+        }
+        isFunction(cb) && cb(err, ret);
+        return ret;
+    },    
 
     // 以下为文件证书函数
     browser: typeof process === "undefined" || !process.nextTick || Boolean(process.browser),

@@ -173,10 +173,9 @@ module.exports = {
     // 05 J_BC_WD_IsDefaultPin (IN HANDLE hDev,IN DWORD dwPinType,OUT BOOL* pbDefaultPin);
     ukeyIsDefaultPin: function (hDev, dwPinType, cb) {
         var pbDefaultPin = ref.alloc('bool');
-
         var err = c(ukey && ukey.J_BC_WD_IsDefaultPin(hDev, dwPinType, pbDefaultPin));
         if (err === 0) {
-            pbDefaultPin = Boolean(pbDefaultPin.toString('hex'));
+            pbDefaultPin = Boolean(parseInt(pbDefaultPin.toString('hex')));
         }
         var ret = {
             err: err,

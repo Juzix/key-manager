@@ -741,6 +741,7 @@ module.exports = {
             var dk = this.createDk();
             var keyObject = keythereum.dump(password, dk.privateKey, dk.salt, dk.iv, options);
             keyObject.username = username;
+            keyObject.address = '0x' + keyObject.address;
             return keyObject;
         }
     },

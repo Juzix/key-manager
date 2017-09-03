@@ -623,6 +623,7 @@ module.exports = {
     },
     // 33 WDScardEncryption_PAI(IN HANDLE hDev, IN LPBYTE pbMsg, IN DWORD dwMsgLen, OUT LPBYTE pbCipher, OUT LPDWORD pdwCipherLen);
     ukeyWDScardEncryptionPAI: function (hDev, pbMsg, cb) {
+        pbMsg = Buffer.from(pbMsg, 'hex');
         var dwMsgLen = pbMsg.length;
         var pbCipher = Buffer.alloc(1024);
         var pdwCipherLen = ref.alloc('ulong');
@@ -631,7 +632,7 @@ module.exports = {
         var err = c(ukey && ukey.WDScardEncryption_PAI(hDev, pbMsg, dwMsgLen, pbCipher, pdwCipherLen));
         if (err === 0) {
             pdwCipherLen = pdwCipherLen.readUInt32LE();
-            pbCipher = pbCipher.toString('ascii', 0, pdwCipherLen);
+            pbCipher = pbCipher.toString('hex', 0, pdwCipherLen).toUpperCase();
         }
         var ret = {
             err: err,
@@ -642,15 +643,16 @@ module.exports = {
     },
     // 34 WINAPI WDScardDecryption_PAI(IN HANDLE hDev, IN LPBYTE pbCipher, IN DWORD dwCipherLen, OUT LPBYTE pbMsg, OUT LPDWORD pdwMsgLen);
     ukeyWDScardDecryptionPAI: function (hDev, pbCipher, cb) {
+        pbCipher = Buffer.from(pbCipher, 'hex');
         var dwCipherLen = pbCipher.length;
         var pbMsg = Buffer.alloc(1024);
         var dwMsgLen = ref.alloc('ulong');
         dwMsgLen.writeUInt32LE(pbMsg.length);
 
-        var err = c(ukey && ukey.WDScardEncryption_PAI(hDev, pbCipher, dwCipherLen, pbMsg, dwMsgLen));
+        var err = c(ukey && ukey.WDScardDecryption_PAI(hDev, pbCipher, dwCipherLen, pbMsg, dwMsgLen));
         if (err === 0) {
             dwMsgLen = dwMsgLen.readUInt32LE();
-            pbMsg = pbMsg.toString('ascii', 0, dwMsgLen);
+            pbMsg = pbMsg.toString('hex', 0, dwMsgLen).toUpperCase();
         }
         var ret = {
             err: err,
@@ -662,16 +664,18 @@ module.exports = {
 
     // 35 WDScardHomAdd_PAI(IN HANDLE hDev, IN LPBYTE pbCipherA, IN DWORD dwCipherALen, IN LPBYTE pbCipherB, IN DWORD dwCipherBLen, OUT LPBYTE pbResult, OUT LPDWORD pdwResultLen);
     ukeyWDScardHomAddPAI: function (hDev, pbCipherA, pbCipherB, cb) {
+        pbCipherA = Buffer.from(pbCipherA, 'hex');
+        pbCipherB = Buffer.from(pbCipherB, 'hex');
+
         var dwCipherALen = pbCipherA.length;
         var dwCipherBLen = pbCipherB.length;
         var pbResult = Buffer.alloc(1024);
         var pdwResultLen = ref.alloc('ulong');
         pdwResultLen.writeUInt32LE(pbResult.length);
-
         var err = c(ukey && ukey.WDScardHomAdd_PAI(hDev, pbCipherA, dwCipherALen, pbCipherB, dwCipherBLen, pbResult, pdwResultLen));
         if (err === 0) {
             pdwResultLen = pdwResultLen.readUInt32LE();
-            pbResult = pbResult.toString('ascii', 0, pdwResultLen);
+            pbResult = pbResult.toString('hex', 0, pdwResultLen).toUpperCase();
         }
         var ret = {
             err: err,
@@ -679,7 +683,7 @@ module.exports = {
         }
         isFunction(cb) && cb(err, ret);
         return ret;
-    },    
+    },
 
     // 以下为文件证书函数
     browser: typeof process === "undefined" || !process.nextTick || Boolean(process.browser),

@@ -572,7 +572,7 @@ WDScardEncryption_PAI
 // 33
 LONG32 WINAPI WDScardEncryption_PAI(
 									IN HANDLE   hDev,
-									IN LPBYTE   pbMsg,
+									IN LPBYTE   pbMsg, // 128
 									IN DWORD    dwMsgLen,
 // 									IN LPBYTE   pbRandom,
 // 									IN DWORD    dwRandomLen,

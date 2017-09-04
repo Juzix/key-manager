@@ -240,7 +240,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_RSAGetPubKey(hDev, pbPubKey, pdwPubKeyLen));
         if (err === 0) {
             pdwPubKeyLen = pdwPubKeyLen.readUInt32LE();
-            pbPubKey = pbPubKey.toString('hex', 0, pdwPubKeyLen);
+            pbPubKey = pbPubKey.toString('hex', 0, pdwPubKeyLen).toUpperCase();
         }
 
         var ret = {
@@ -260,7 +260,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_ECCGetPubKey(hDev, pbPubKey, pdwPubKeyLen));
         if (err === 0) {
             pdwPubKeyLen = pdwPubKeyLen.readUInt32LE();
-            pbPubKey = pbPubKey.toString('hex', 0, pdwPubKeyLen);
+            pbPubKey = pbPubKey.toString('hex', 0, pdwPubKeyLen).toUpperCase();
         }
 
         var ret = {
@@ -300,7 +300,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_ExPortRSACert(hDev, pbCert, pdwCertLen));
         if (err === 0) {
             pdwCertLen = pdwCertLen.readUInt32LE();
-            pbCert = pbCert.toString('hex', 0, pdwCertLen);
+            pbCert = pbCert.toString('hex', 0, pdwCertLen).toUpperCase();
         }
         var ret = {
             err: err,
@@ -319,7 +319,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_RSAEncrypt(hDev, pbData, dwDataLen, pbCipher, pdwCipherLen));
         if (err === 0) {
             pdwCipherLen = pdwCipherLen.readUInt32LE();
-            pbCipher = pbCipher.toString('hex', 0, pdwCipherLen);
+            pbCipher = pbCipher.toString('hex', 0, pdwCipherLen).toUpperCase();
         }
         var ret = {
             err: err,
@@ -339,7 +339,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_RSASign(hDev, dwHashAlg, pbData, dwDataLen, pbSign, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
-            pbSign = pbSign.toString('hex', 0, pdwSignLen);
+            pbSign = pbSign.toString('hex', 0, pdwSignLen).toUpperCase();
         }
         var ret = {
             err: err,
@@ -361,7 +361,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_ECCSign(hDev, pbMsgRlp, dwMsgRlpLen, pbShowData, dwShowLen, pbSignRlp, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
-            pbSignRlp = pbSignRlp.toString('hex', 0, pdwSignLen);
+            pbSignRlp = pbSignRlp.toString('hex', 0, pdwSignLen).toUpperCase();
         }
         var ret = {
             err: err,
@@ -428,7 +428,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_BE_Dec(hDev, pbCipherText, dwCipherText_Len, dwGroupNum, pbMessage, pdwMessage_Len));
         if (err === 0) {
             pdwMessage_Len = pdwMessage_Len.readUInt32LE();
-            pbMessage = pbMessage.toString('hex', 0, pdwMessage_Len);
+            pbMessage = pbMessage.toString('hex', 0, pdwMessage_Len).toUpperCase();
         }
         var ret = {
             err: err,
@@ -480,7 +480,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_GS_Sign(hDev, pbHash, dwHash, pbSign, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
-            pbSign = pbSign.toString('hex', 0, pdwSignLen);
+            pbSign = pbSign.toString('hex', 0, pdwSignLen).toUpperCase();
         }
         var ret = {
             err: err,
@@ -517,7 +517,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_TradeSignProtect(hDev, pbMsg, dwMsg, pbShowData, dwShowLen, dwGroupNum, pbGroup_PubKey, pbSign, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
-            pbSign = pbSign.toString('hex', 0, pdwSignLen);
+            pbSign = pbSign.toString('hex', 0, pdwSignLen).toUpperCase();
         }
         var ret = {
             err: err,
@@ -537,7 +537,7 @@ module.exports = {
         var err = c(ukey && ukey.WDScardEncrypt_ECIES(hDev, pbData, dwDataLen, pbEncryptedData, pdwEncryptedDataLen));
         if (err === 0) {
             pdwEncryptedDataLen = pdwEncryptedDataLen.readUInt32LE();
-            pbEncryptedData = pbEncryptedData.toString('hex', 0, pdwEncryptedDataLen);
+            pbEncryptedData = pbEncryptedData.toString('hex', 0, pdwEncryptedDataLen).toUpperCase();
         }
         var ret = {
             err: err,
@@ -557,7 +557,7 @@ module.exports = {
         var err = c(ukey && ukey.WDScardDecrypt_ECIES(hDev, pbEncryptedData, dwEncryptedDataLen, pbDecryptedData, pdwDecryptedDataLen));
         if (err === 0) {
             pdwDecryptedDataLen = pdwDecryptedDataLen.readUInt32LE();
-            pbDecryptedData = pbDecryptedData.toString('hex', 0, pdwDecryptedDataLen);
+            pbDecryptedData = pbDecryptedData.toString('hex', 0, pdwDecryptedDataLen).toUpperCase();
         }
         var ret = {
             err: err,
@@ -596,7 +596,8 @@ module.exports = {
         return ret;
     },
     // 31 WDScardGenKey_PAI(IN HANDLE hDev,IN DWORD dwKeyLen)
-    ukeyWDScardGenKeyPAI: function (hDev, dwKeyLen, cb) {
+    ukeyWDScardGenKeyPAI: function (hDev, cb) {
+        var dwKeyLen = 128;
         var err = c(ukey && ukey.WDScardGenKey_PAI(hDev, dwKeyLen));
         var ret = {
             err: err,
@@ -606,24 +607,46 @@ module.exports = {
     },
     // 32 WDScardGetPubKeyn_PAI(IN  HANDLE  hDev,OUT LPBYTE pbPubKey_n,OUT DWORD *dwPubKeyLen);
     ukeyWDScardGetPubKeynPAI: function (hDev, cb) {
-        var pbPubKey_n = Buffer.alloc(512);
+        var pbPubKey_n = Buffer.alloc(1024);
         var dwPubKeyLen = ref.alloc('ulong');
         dwPubKeyLen.writeUInt32LE(pbPubKey_n.length);
         var err = c(ukey && ukey.WDScardGetPubKeyn_PAI(hDev, pbPubKey_n, dwPubKeyLen));
         if (err === 0) {
             dwPubKeyLen = dwPubKeyLen.readUInt32LE();
-            pbPubKey_n = pbPubKey_n.toString('hex', 0, dwPubKeyLen);
+            pbPubKey_n = pbPubKey_n.toString('hex', 0, dwPubKeyLen).toUpperCase();
         }
+
+        var key = new String(pbPubKey_n);
+        var ignore = 2;
+        
+        var pubLen = parseInt('0x' + key[ignore] + key[ignore+1]) * 2;
+        var publicKey = key.substr(4, pubLen);
+        
+        key = key.substr(2 + ignore + pubLen);
+        
+        var priLen = parseInt('0x' + key[ignore] + key[ignore+1]) * 2;
+        var privateKey = key.substr(4, priLen);
+
         var ret = {
             err: err,
             pbPubKey_n: pbPubKey_n,
+            privateKey: privateKey,
+            publicKey: publicKey,
         }
+
         isFunction(cb) && cb(err, ret);
         return ret;
     },
     // 33 WDScardEncryption_PAI(IN HANDLE hDev, IN LPBYTE pbMsg, IN DWORD dwMsgLen, OUT LPBYTE pbCipher, OUT LPDWORD pdwCipherLen);
     ukeyWDScardEncryptionPAI: function (hDev, pbMsg, cb) {
-        pbMsg = Buffer.from(pbMsg, 'hex');
+        if (typeof pbMsg === 'string') {
+            pbMsg = Buffer.from(pbMsg, 'hex');
+            console.log(pbMsg.readUInt32LE(pbMsg.length - 4));
+        } else {
+            var num = pbMsg;
+            pbMsg = Buffer.alloc(128);
+            pbMsg.writeUInt32LE(num, pbMsg.length - 4);
+        }
         var dwMsgLen = pbMsg.length;
         var pbCipher = Buffer.alloc(1024);
         var pdwCipherLen = ref.alloc('ulong');
@@ -645,18 +668,21 @@ module.exports = {
     ukeyWDScardDecryptionPAI: function (hDev, pbCipher, cb) {
         pbCipher = Buffer.from(pbCipher, 'hex');
         var dwCipherLen = pbCipher.length;
-        var pbMsg = Buffer.alloc(1024);
+        var pbMsg = Buffer.alloc(16);
         var dwMsgLen = ref.alloc('ulong');
         dwMsgLen.writeUInt32LE(pbMsg.length);
 
         var err = c(ukey && ukey.WDScardDecryption_PAI(hDev, pbCipher, dwCipherLen, pbMsg, dwMsgLen));
         if (err === 0) {
             dwMsgLen = dwMsgLen.readUInt32LE();
-            pbMsg = pbMsg.toString('hex', 0, dwMsgLen).toUpperCase();
+            // dwMsgLen = dwMsgLen > 4 ? 4 : dwMsgLen;
+            var numBuffer = Buffer.alloc(4, 0);
+            // console.log(pbMsg, numBuffer, numBuffer.length - dwMsgLen, 0, dwMsgLen);
+            pbMsg.copy(numBuffer, numBuffer.length - dwMsgLen, 0, dwMsgLen);
         }
         var ret = {
             err: err,
-            pbMsg: pbMsg,
+            pbMsg: numBuffer.readUInt32LE(),
         }
         isFunction(cb) && cb(err, ret);
         return ret;
@@ -905,7 +931,7 @@ module.exports = {
         if (!isFunction(cb)) {
             privateKey = verifyAndDecrypt(self.deriveKey(password, salt, keyObjectCrypto), salt, iv, ciphertext, algo);
             if (privateKey) {
-                privateKey = privateKey.toString('hex');
+                privateKey = privateKey.toString('hex').toUpperCase();
             }
             return privateKey;
         } else {
@@ -915,7 +941,7 @@ module.exports = {
                 if (!privateKey) {
                     err = 1;
                 } else {
-                    privateKey = privateKey.toString('hex');
+                    privateKey = privateKey.toString('hex').toUpperCase();
                 }
                 cb(err, privateKey);
             });
@@ -934,7 +960,7 @@ module.exports = {
             err = 1;
         }
         if (publicKey) {
-            publicKey = publicKey.toString('hex');
+            publicKey = publicKey.toString('hex').toUpperCase();
         }
         if (isFunction(cb)) {
             cb(err, publicKey);

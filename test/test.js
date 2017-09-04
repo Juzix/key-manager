@@ -85,7 +85,7 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    skip('08 在USBKEY中生成指定类型的密钥对：ukeyRSAGenKey', function (done) {
+    step('08 在USBKEY中生成指定类型的密钥对：ukeyRSAGenKey', function (done) {
         key.ukeyRSAGenKey(config.hDev, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             done();
@@ -159,7 +159,7 @@ describe("开始ukey测试...", function () {
     });
 
     // 需要修改pin码之后才能验证此接口
-    skip('16 18 ECDSA签名，ECC验签：ukeyECCSign，ukeyECCVerifySign', function (done) {
+    step('16 18 ECDSA签名，ECC验签：ukeyECCSign，ukeyECCVerifySign', function (done) {
         key.ukeyECCSign(config.hDev, config.pbMsgRlp, config.pbShowData, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             if (ret.err === 0) {
@@ -224,7 +224,7 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    skip('24 25 群签名，群签名验签：ukeyGSSign，ukeyGSVerify', function (done) {
+    step('24 25 群签名，群签名验签：ukeyGSSign，ukeyGSVerify', function (done) {
         key.ukeyGSSign(config.hDev, config.pbHash, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             if (ret.err === 0) {
@@ -262,7 +262,7 @@ describe("开始ukey测试...", function () {
     });
 
     it('31 产生加解密所需的公私钥对：ukeyWDScardGenKeyPAI', function (done) {
-        key.ukeyWDScardGenKeyPAI(config.hDev, config.dwKeyLen, function (err, ret) {
+        key.ukeyWDScardGenKeyPAI(config.hDev, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             done();
         })
@@ -272,14 +272,14 @@ describe("开始ukey测试...", function () {
         key.ukeyWDScardGetPubKeynPAI(config.hDev, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             if (err === 0) {
-                config.pbPubKey_n = ret.pbPubKey_n;
+                expect(ret.privateKey.length).to.be.equal(256);
+                expect(ret.publicKey.length).to.be.equal(256);
             }
             done();
         })
     });
 
     step('33 34 PAI消息加密，解密密文：ukeyWDScardEncryptionPAI，ukeyWDScardDecryptionPAI', function (done) {
-        // console.log('config.pbMsgPAI = ' + config.pbMsgPAI);
         key.ukeyWDScardEncryptionPAI(config.hDev, config.pbMsgPAI, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             if (ret.err === 0) {
@@ -287,7 +287,7 @@ describe("开始ukey测试...", function () {
                 config.pbCipherB = ret.pbCipher;
                 key.ukeyWDScardDecryptionPAI(config.hDev, ret.pbCipher, function (err, ret) {
                     expect(ret.err).to.be.equal(0);
-                    expect(config.pbMsgPAI).to.include(ret.pbMsg);
+                    expect(config.pbMsgPAI).to.equal(ret.pbMsg);
                     done();
                 })
             } else {
@@ -299,8 +299,15 @@ describe("开始ukey测试...", function () {
     it('35 密文同态加：ukeyWDScardHomAddPAI', function (done) {
         key.ukeyWDScardHomAddPAI(config.hDev, config.pbCipherA, config.pbCipherB, function (err, ret) {
             expect(ret.err).to.be.equal(0);
-            done();
-            // expect(ret.pbResult).to.equal(config.pbResult);
+            if (ret.err === 0) {
+                // console.log('ret.pbResult = ', ret.pbResult);
+                key.ukeyWDScardDecryptionPAI(config.hDev, ret.pbResult, function (err, ret) {
+                    expect(ret.pbMsg).to.be.equal(config.pbMsgPAI * 2);
+                    done();
+                })
+            } else {
+                done();
+            }
         })
     });
 

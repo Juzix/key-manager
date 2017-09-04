@@ -501,3 +501,52 @@ ECC广播解密
 出参：
 * `pbData`: String 写入的数据。  
 
+### **`ukeyWDScardGenKeyPAI`**
+产生加解密所需的公私钥对      
+入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
+
+出参：
+* 无  
+
+### **`ukeyWDScardGetPubKeynPAI`**
+获取用户公钥n      
+入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
+
+出参：
+* `pbPubKey_n`: String 用户公钥n    
+* `publicKey`: String 根据pbPubKey_n得到的用户公钥    
+* `privateKey`: String 根据pbPubKey_n得到的用户私钥    
+
+### **`ukeyWDScardEncryptionPAI`**
+消息加密      
+入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
+* `pbMsg`: Unsinged Integer || String 待加密的消息。如果是整数，我会转为大端格式的整数，不足在高位补0的128位的Buffer。
+
+出参：
+* `pbCipher`: String 生成的密文    
+
+### **`ukeyWDScardDecryptionPAI`**
+解密密文，获得明文消息     
+入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
+* `pbCipher`: String 密文消息     
+
+出参：
+* `pbMsg`: Unsinged Integer 解密的消息    
+
+### **`ukeyWDScardHomAddPAI`**
+密文同态加。     
+入参：
+* `hDev`: Integer 连接设备时返回的设备句柄   
+* `pbCipherA`: String 密文消息A     
+* `pbCipherB`: String 密文消息A     
+
+出参：
+* `pbResult`: String 加密后的消息 
+  
+
+
+

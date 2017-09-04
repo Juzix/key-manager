@@ -1,8 +1,8 @@
 module.exports = {
     hDev: -1, // 打开设备之后返回的句柄
     pbDevSN: 'JUZHEN0123456787',
-    pbUserPin: '123456',  // 用户pin
-    pbAdminPin: 'jz1234',  // 管理员pin
+    pbUserPin: '123456',  // 用户pin 默认jz8888
+    pbAdminPin: 'jz1234',  // 管理员pin 默认 jz1234
     pbNewUserPin: '123456',  // 用户pin
     pbNewAdminPin: '123456',  // 管理员pin
     pbCert: '../data/ca.crt.pem',// 导入证书路径
@@ -25,5 +25,12 @@ module.exports = {
         USER_TYPE: 1,// 普通用户PIN类型
     },
     dataToKey: new Date().getTime().toString(), // 写到key里面的数据
-    pbShowData: "i love this world",
+    pbShowData: "我爱 this world 呵呵哒",
+    dwKeyLen: 128,   // 公私钥长度
+    pbPubKey_n: '',
+    // pbMsgPAI 128 等测试样例不能过
+    pbMsgPAI:1111,//'0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000AABBCC', // WDScardEncryption_PAI 待加密的消息
+    pbCipherA:'',
+    pbCipherB:'',
+    pbResult: '',
 }

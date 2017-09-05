@@ -459,14 +459,19 @@ module.exports = {
     },
     // 23 J_BC_GS_ImportUPriKey(IN HANDLE hDev, IN BYTE  *pbUPriKey,IN DWORD dwUPriKey)
     ukeyImportUPriKey: function (hDev, pbUPriKey, cb) {
-        pbUPriKey = Buffer.from(pbUPriKey, 'hex');
-        var dwUPriKey = pbUPriKey.length;
-        var err = c(ukey && ukey.J_BC_GS_ImportUPriKey(hDev, pbUPriKey, dwUPriKey));
-        var ret = {
+        var ret = this.ukeyWDScardEncryptECIES(hDev, pbUPriKey);
+        var err = ret.err;
+        if (ret.err === 0) {
+            pbUPriKey = Buffer.from(ret.pbEncryptedData, 'hex');
+            var dwUPriKey = pbUPriKey.length;
+            var err = c(ukey && ukey.J_BC_GS_ImportUPriKey(hDev, pbUPriKey, dwUPriKey));
+        }
+
+        var ret1 = {
             err: err,
         }
-        isFunction(cb) && cb(err, ret);
-        return ret;
+        isFunction(cb) && cb(err, ret1);
+        return ret1;
     },
     // 24 J_BC_GS_Sign(IN HANDLE hDev, IN BYTE* pbHash, IN DWORD dwHash, OUT BYTE*pbSign, OUT DWORD* pdwSignLen)
     ukeyGSSign: function (hDev, pbHash, cb) {
@@ -645,7 +650,7 @@ module.exports = {
         } else {
             var num = pbMsg;
             pbMsg = Buffer.alloc(128);
-            pbMsg.writeUInt32LE(num, pbMsg.length - 4);
+            pbMsg.writeUInt32BE(num, pbMsg.length - 4);
         }
         var dwMsgLen = pbMsg.length;
         var pbCipher = Buffer.alloc(1024);
@@ -682,7 +687,7 @@ module.exports = {
         }
         var ret = {
             err: err,
-            pbMsg: numBuffer.readUInt32LE(),
+            pbMsg: numBuffer.readUInt32BE(),
         }
         isFunction(cb) && cb(err, ret);
         return ret;

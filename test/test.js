@@ -17,7 +17,6 @@ describe("开始ukey测试...", function () {
         key.ukeyEnumDevice(function (err, ret) {
             expect(ret.err).to.be.equal(0);
             expect(ret.pbNameList).to.have.length.least(1);
-			console.log(ret);
             if (ret.err === 0) {
                 config.pbDevSN = ret.pbNameList[0]; // 默认用第一个来测试
             }
@@ -174,11 +173,11 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    step('27 28 Unkown：ukeyWDScardEncryptECIES，ukeyWDScardDecryptECIES', function (done) {
+    step('27 28 ECC加密，ECC解密：ukeyWDScardEncryptECIES，ukeyWDScardDecryptECIES', function (done) {
         key.ukeyWDScardEncryptECIES(config.hDev, config.pbData, function (err, ret) {
             expect(ret.err).to.be.equal(0);
-            config.pbUPriKey = ret.pbEncryptedData;
             if (err === 0) {
+                config.pbUPriKey = ret.pbEncryptedData;
                 key.ukeyWDScardDecryptECIES(config.hDev, ret.pbEncryptedData, function (err, ret) {
                     expect(ret.err).to.be.equal(0);
                     done();
@@ -190,13 +189,13 @@ describe("开始ukey测试...", function () {
     });
 
     step('23 导入群签名用户私钥：ukeyImportUPriKey', function (done) {
-        key.ukeyImportUPriKey(config.hDev, config.pbUPriKey, function (err, ret) {
+        key.ukeyImportUPriKey(config.hDev, config.pbData, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             done();
         })
     });
 
-    step('22 导入群签名系统公钥：ukeyImportUPriKey', function (done) {
+    skip('22 导入群签名系统公钥：ukeyImportUPriKey', function (done) {
         key.ukeyImportMPubKey(config.hDev, config.pbMPubKey, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             done();
@@ -225,7 +224,7 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    step('24 25 群签名，群签名验签：ukeyGSSign，ukeyGSVerify', function (done) {
+    skip('24 25 群签名，群签名验签：ukeyGSSign，ukeyGSVerify', function (done) {
         key.ukeyGSSign(config.hDev, config.pbHash, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             if (ret.err === 0) {

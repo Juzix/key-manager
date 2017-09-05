@@ -462,7 +462,7 @@ ECC广播解密
 * `pbSign`: 签名值
 
 ### **`ukeyWDScardEncryptECIES`**
-暂无描述，待确定   
+ECC加密。   
 入参：
 * `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbData`: String 待签名消息数据   
@@ -471,7 +471,7 @@ ECC广播解密
 * `pbEncryptedData`: String 加密后的数据
 
 ### **`ukeyWDScardDecryptECIES`**
-暂无描述，待确定   
+ECC解密。     
 入参：
 * `hDev`: Integer 连接设备时返回的设备句柄   
 * `pbEncryptedData`: String 加密后的数据   

@@ -17,6 +17,7 @@ describe("开始ukey测试...", function () {
         key.ukeyEnumDevice(function (err, ret) {
             expect(ret.err).to.be.equal(0);
             expect(ret.pbNameList).to.have.length.least(1);
+			console.log(ret);
             if (ret.err === 0) {
                 config.pbDevSN = ret.pbNameList[0]; // 默认用第一个来测试
             }
@@ -158,7 +159,7 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    // 需要修改pin码之后才能验证此接口
+    // 需要修改pin码之后以及先验证管理员PIN是否正确才能验证此接口
     step('16 18 ECDSA签名，ECC验签：ukeyECCSign，ukeyECCVerifySign', function (done) {
         key.ukeyECCSign(config.hDev, config.pbMsgRlp, config.pbShowData, function (err, ret) {
             expect(ret.err).to.be.equal(0);

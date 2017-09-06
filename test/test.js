@@ -3,16 +3,66 @@ var expect = require('chai').expect;
 var key = require('../index.js');
 require('mocha-steps');
 
+var config = null;
+try {
+    config = require('./config.js');
+} catch (error) {
+    config = require('./config.default.js');
+}
+
 var skip = it.skip;
 var only = it.only;
-describe("开始ukey测试...", function () {
-    var config = null;
-    try {
-        config = require('./config.js');
-    } catch (error) {
-        config = require('./config.default.js');
-    }
 
+describe("开始文件证书测试...", function () {
+    var keyobject = null;
+    var options = {
+        kdf: "pbkdf2",
+        cipher: "aes-128-ctr",
+        kdfparams: {
+            c: 2621440,
+            dklen: 32,
+            prf: "hmac-sha256"
+        }
+    };
+
+    step('测试生成文件证书对象', function(done){
+        key.createKey(config.username, config.pwd, function(err, _keyobject){
+            expect(err).to.be.equal(0);
+            if (err === 0) {
+                keyobject = _keyobject;
+            }
+            done();
+        })
+    })
+
+    step('测试解密文件证书', function(done){
+        key.recover(config.pwd, keyobject, function(err, privateKey){
+            expect(err).to.be.equal(0);
+            done();
+        })
+    })
+
+    step('测试生成文件证书对象', function(done){
+        key.setOption(options);
+        console.time('')
+        key.createKey(config.username, config.pwd, function(err, _keyobject){
+            expect(err).to.be.equal(0);
+            if (err === 0) {
+                keyobject = _keyobject;
+            }
+            done();
+        })
+    })
+
+    step('测试解密文件证书', function(done){
+        key.recover(config.pwd, keyobject, function(err, privateKey){
+            expect(err).to.be.equal(0);
+            done();
+        })
+    })
+})
+
+describe("开始ukey测试...", function () {
     step('01 测试获取序列号列表：ukeyEnumDevice', function (done) {
         key.ukeyEnumDevice(function (err, ret) {
             expect(ret.err).to.be.equal(0);
@@ -318,4 +368,3 @@ describe("开始ukey测试...", function () {
         })
     });
 })
-

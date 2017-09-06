@@ -428,7 +428,7 @@ ECC广播解密
 * `pbUPriKey`: String 群签名用户私钥   
 
 出参：
-* 无
+* `pbEncryptedData` String 群签名用户私钥加密后的数据    
 
 ### **`ukeyGSSign`**
 群签名   

@@ -461,7 +461,9 @@ module.exports = {
     ukeyImportUPriKey: function (hDev, pbUPriKey, cb) {
         var ret = this.ukeyWDScardEncryptECIES(hDev, pbUPriKey);
         var err = ret.err;
+        var pbEncryptedData = null;
         if (ret.err === 0) {
+            pbEncryptedData = ret.pbEncryptedData;
             pbUPriKey = Buffer.from(ret.pbEncryptedData, 'hex');
             var dwUPriKey = pbUPriKey.length;
             var err = c(ukey && ukey.J_BC_GS_ImportUPriKey(hDev, pbUPriKey, dwUPriKey));
@@ -469,6 +471,7 @@ module.exports = {
 
         var ret1 = {
             err: err,
+            pbEncryptedData: pbEncryptedData,
         }
         isFunction(cb) && cb(err, ret1);
         return ret1;

@@ -355,7 +355,7 @@ module.exports = {
         var pbMsgRlp = Buffer.from(pbMsgRlp, 'hex');
         var dwMsgRlpLen = pbMsgRlp.length;
         var dwShowLen = getBLen(pbShowData);
-        var pbSignRlp = Buffer.alloc(1024);
+        var pbSignRlp = Buffer.alloc(pbMsgRlp.length + 1024);
         var pdwSignLen = ref.alloc('ulong');
         pdwSignLen.writeUInt32LE(pbSignRlp.length);
         var err = c(ukey && ukey.J_BC_WD_ECCSign(hDev, pbMsgRlp, dwMsgRlpLen, pbShowData, dwShowLen, pbSignRlp, pdwSignLen));

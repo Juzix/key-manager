@@ -245,7 +245,7 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    skip('22 导入群签名系统公钥：ukeyImportUPriKey', function (done) {
+    step('22 导入群签名系统公钥：ukeyImportUPriKey', function (done) {
         key.ukeyImportMPubKey(config.hDev, config.pbMPubKey, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             done();

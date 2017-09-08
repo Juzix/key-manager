@@ -169,6 +169,7 @@ describe("开始ukey测试...", function () {
     step('AA 获取ECC地址：ukeyECCAddress', function (done) {
         key.ukeyECCAddress(config.hDev, function (err, ret) {
             expect(ret.err).to.be.equal(0);
+            expect(ret.address.length).to.be.equal(42);
             done();
         })
     });
@@ -274,7 +275,7 @@ describe("开始ukey测试...", function () {
         })
     });
 
-    skip('24 25 群签名，群签名验签：ukeyGSSign，ukeyGSVerify', function (done) {
+    step('24 25 群签名，群签名验签：ukeyGSSign，ukeyGSVerify', function (done) {
         key.ukeyGSSign(config.hDev, config.pbHash, function (err, ret) {
             expect(ret.err).to.be.equal(0);
             if (ret.err === 0) {

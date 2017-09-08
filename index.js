@@ -255,7 +255,7 @@ module.exports = {
     ukeyECCGetPubKey: function (hDev, cb) {
         var pbPubKey = Buffer.alloc(512);
         var pdwPubKeyLen = ref.alloc('ulong');
-        pdwPubKeyLen.writeUInt32LE(512);
+        pdwPubKeyLen.writeUInt32LE(pbPubKey.length);
 
         var err = c(ukey && ukey.J_BC_WD_ECCGetPubKey(hDev, pbPubKey, pdwPubKeyLen));
         if (err === 0) {
@@ -278,7 +278,7 @@ module.exports = {
             address: null,
         }
         if (r.err === 0) {
-            ret.address = '0x' + sha3(ret.pbPubKey, { outputLength: 256 }).toString().slice(-40);
+            ret.address = '0x' + sha3(r.pbPubKey, { outputLength: 256 }).toString().slice(-40);
         }
         isFunction(cb) && cb(ret.err, ret);
         return ret;
@@ -296,7 +296,7 @@ module.exports = {
     ukeyExPortRSACert: function (hDev, cb) {
         var pbCert = Buffer.alloc(128);
         var pdwCertLen = ref.alloc('ulong');
-        pdwCertLen.writeUInt32LE(128);
+        pdwCertLen.writeUInt32LE(pbCert.length);
         var err = c(ukey && ukey.J_BC_WD_ExPortRSACert(hDev, pbCert, pdwCertLen));
         if (err === 0) {
             pdwCertLen = pdwCertLen.readUInt32LE();
@@ -315,7 +315,7 @@ module.exports = {
         var dwDataLen = pbData.length;
         var pbCipher = Buffer.alloc(512);
         var pdwCipherLen = ref.alloc('ulong');
-        pdwCipherLen.writeUInt32LE(512);
+        pdwCipherLen.writeUInt32LE(pbCipher.length);
         var err = c(ukey && ukey.J_BC_WD_RSAEncrypt(hDev, pbData, dwDataLen, pbCipher, pdwCipherLen));
         if (err === 0) {
             pdwCipherLen = pdwCipherLen.readUInt32LE();

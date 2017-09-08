@@ -240,7 +240,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_RSAGetPubKey(hDev, pbPubKey, pdwPubKeyLen));
         if (err === 0) {
             pdwPubKeyLen = pdwPubKeyLen.readUInt32LE();
-            pbPubKey = pbPubKey.toString('hex', 0, pdwPubKeyLen).toUpperCase();
+            pbPubKey = pbPubKey.toString('hex', 0, pdwPubKeyLen);
         }
 
         var ret = {
@@ -260,7 +260,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_ECCGetPubKey(hDev, pbPubKey, pdwPubKeyLen));
         if (err === 0) {
             pdwPubKeyLen = pdwPubKeyLen.readUInt32LE();
-            pbPubKey = pbPubKey.toString('hex', 0, pdwPubKeyLen).toUpperCase();
+            pbPubKey = pbPubKey.toString('hex', 0, pdwPubKeyLen);
         }
 
         var ret = {
@@ -278,7 +278,7 @@ module.exports = {
             address: null,
         }
         if (r.err === 0) {
-            ret.address = '0x' + createKeccakHash("keccak256").update(Buffer.from(r.pbPubKey, 'hex')).digest().toString('hex').toUpperCase().slice(-40);
+            ret.address = '0x' + createKeccakHash("keccak256").update(Buffer.from(r.pbPubKey, 'hex')).digest().toString('hex').slice(-40);
         }
         isFunction(cb) && cb(ret.err, ret);
         return ret;
@@ -300,7 +300,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_ExPortRSACert(hDev, pbCert, pdwCertLen));
         if (err === 0) {
             pdwCertLen = pdwCertLen.readUInt32LE();
-            pbCert = pbCert.toString('hex', 0, pdwCertLen).toUpperCase();
+            pbCert = pbCert.toString('hex', 0, pdwCertLen);
         }
         var ret = {
             err: err,
@@ -319,7 +319,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_RSAEncrypt(hDev, pbData, dwDataLen, pbCipher, pdwCipherLen));
         if (err === 0) {
             pdwCipherLen = pdwCipherLen.readUInt32LE();
-            pbCipher = pbCipher.toString('hex', 0, pdwCipherLen).toUpperCase();
+            pbCipher = pbCipher.toString('hex', 0, pdwCipherLen);
         }
         var ret = {
             err: err,
@@ -339,7 +339,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_RSASign(hDev, dwHashAlg, pbData, dwDataLen, pbSign, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
-            pbSign = pbSign.toString('hex', 0, pdwSignLen).toUpperCase();
+            pbSign = pbSign.toString('hex', 0, pdwSignLen);
         }
         var ret = {
             err: err,
@@ -361,7 +361,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_ECCSign(hDev, pbMsgRlp, dwMsgRlpLen, pbShowData, dwShowLen, pbSignRlp, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
-            pbSignRlp = pbSignRlp.toString('hex', 0, pdwSignLen).toUpperCase();
+            pbSignRlp = pbSignRlp.toString('hex', 0, pdwSignLen);
         }
         var ret = {
             err: err,
@@ -428,7 +428,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_BE_Dec(hDev, pbCipherText, dwCipherText_Len, dwGroupNum, pbMessage, pdwMessage_Len));
         if (err === 0) {
             pdwMessage_Len = pdwMessage_Len.readUInt32LE();
-            pbMessage = pbMessage.toString('hex', 0, pdwMessage_Len).toUpperCase();
+            pbMessage = pbMessage.toString('hex', 0, pdwMessage_Len);
         }
         var ret = {
             err: err,
@@ -488,7 +488,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_GS_Sign(hDev, pbHash, dwHash, pbSign, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
-            pbSign = pbSign.toString('hex', 0, pdwSignLen).toUpperCase();
+            pbSign = pbSign.toString('hex', 0, pdwSignLen);
         }
         var ret = {
             err: err,
@@ -525,7 +525,7 @@ module.exports = {
         var err = c(ukey && ukey.J_BC_WD_TradeSignProtect(hDev, pbMsg, dwMsg, pbShowData, dwShowLen, dwGroupNum, pbGroup_PubKey, pbSign, pdwSignLen));
         if (err === 0) {
             pdwSignLen = pdwSignLen.readUInt32LE();
-            pbSign = pbSign.toString('hex', 0, pdwSignLen).toUpperCase();
+            pbSign = pbSign.toString('hex', 0, pdwSignLen);
         }
         var ret = {
             err: err,
@@ -545,7 +545,7 @@ module.exports = {
         var err = c(ukey && ukey.WDScardEncrypt_ECIES(hDev, pbData, dwDataLen, pbEncryptedData, pdwEncryptedDataLen));
         if (err === 0) {
             pdwEncryptedDataLen = pdwEncryptedDataLen.readUInt32LE();
-            pbEncryptedData = pbEncryptedData.toString('hex', 0, pdwEncryptedDataLen).toUpperCase();
+            pbEncryptedData = pbEncryptedData.toString('hex', 0, pdwEncryptedDataLen);
         }
         var ret = {
             err: err,
@@ -565,7 +565,7 @@ module.exports = {
         var err = c(ukey && ukey.WDScardDecrypt_ECIES(hDev, pbEncryptedData, dwEncryptedDataLen, pbDecryptedData, pdwDecryptedDataLen));
         if (err === 0) {
             pdwDecryptedDataLen = pdwDecryptedDataLen.readUInt32LE();
-            pbDecryptedData = pbDecryptedData.toString('hex', 0, pdwDecryptedDataLen).toUpperCase();
+            pbDecryptedData = pbDecryptedData.toString('hex', 0, pdwDecryptedDataLen);
         }
         var ret = {
             err: err,
@@ -621,7 +621,7 @@ module.exports = {
         var err = c(ukey && ukey.WDScardGetPubKeyn_PAI(hDev, pbPubKey_n, dwPubKeyLen));
         if (err === 0) {
             dwPubKeyLen = dwPubKeyLen.readUInt32LE();
-            pbPubKey_n = pbPubKey_n.toString('hex', 0, dwPubKeyLen).toUpperCase();
+            pbPubKey_n = pbPubKey_n.toString('hex', 0, dwPubKeyLen);
         }
 
         var key = new String(pbPubKey_n);
@@ -663,7 +663,7 @@ module.exports = {
         var err = c(ukey && ukey.WDScardEncryption_PAI(hDev, pbMsg, dwMsgLen, pbCipher, pdwCipherLen));
         if (err === 0) {
             pdwCipherLen = pdwCipherLen.readUInt32LE();
-            pbCipher = pbCipher.toString('hex', 0, pdwCipherLen).toUpperCase();
+            pbCipher = pbCipher.toString('hex', 0, pdwCipherLen);
         }
         var ret = {
             err: err,
@@ -709,7 +709,7 @@ module.exports = {
         var err = c(ukey && ukey.WDScardHomAdd_PAI(hDev, pbCipherA, dwCipherALen, pbCipherB, dwCipherBLen, pbResult, pdwResultLen));
         if (err === 0) {
             pdwResultLen = pdwResultLen.readUInt32LE();
-            pbResult = pbResult.toString('hex', 0, pdwResultLen).toUpperCase();
+            pbResult = pbResult.toString('hex', 0, pdwResultLen);
         }
         var ret = {
             err: err,
@@ -939,7 +939,7 @@ module.exports = {
         if (!isFunction(cb)) {
             privateKey = verifyAndDecrypt(self.deriveKey(password, salt, keyObjectCrypto), salt, iv, ciphertext, algo);
             if (privateKey) {
-                privateKey = privateKey.toString('hex').toUpperCase();
+                privateKey = privateKey.toString('hex');
             }
             return privateKey;
         } else {
@@ -949,7 +949,7 @@ module.exports = {
                 if (!privateKey) {
                     err = 1;
                 } else {
-                    privateKey = privateKey.toString('hex').toUpperCase();
+                    privateKey = privateKey.toString('hex');
                 }
                 cb(err, privateKey);
             });
@@ -968,7 +968,7 @@ module.exports = {
             err = 1;
         }
         if (publicKey) {
-            publicKey = publicKey.toString('hex').toUpperCase();
+            publicKey = publicKey.toString('hex');
         }
         if (isFunction(cb)) {
             cb(err, publicKey);

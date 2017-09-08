@@ -278,7 +278,7 @@ module.exports = {
             address: null,
         }
         if (r.err === 0) {
-            ret.address = '0x' + sha3(r.pbPubKey, { outputLength: 256 }).toString().slice(-40);
+            ret.address = '0x' + createKeccakHash("keccak256").update(Buffer.from(r.pbPubKey, 'hex')).digest().toString('hex').toUpperCase().slice(-40);
         }
         isFunction(cb) && cb(ret.err, ret);
         return ret;

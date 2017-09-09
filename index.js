@@ -840,6 +840,15 @@ module.exports = {
         keystore = keystore || DEFAULT_PATH;
         var keyObjects = [];
         var self = this;
+        if(!fs.existsSync(keystore)){
+            if (isFunction(cb)) {
+                cb(2, keyObjects);
+            } else {
+                return keyObjects;
+            }
+            return;
+        };
+
         if (isFunction(cb)) {
             fs.readdir(keystore, function (err, files) {
                 if (err || files.errno) {
@@ -847,13 +856,15 @@ module.exports = {
                     cb(1, keyObjects);
                 } else {
                     files = files.filter((file) => file.endsWith('.json'));
+                    var readCount = 0;
                     files.forEach(function (file, index) {
                         var filePath = path.join(keystore, file);
                         self.importFromFilePath(filePath, function (err, keyObject) {
+                            readCount++;
                             if (err === 0) {
                                 keyObjects.push(keyObject)
                             }
-                            if (index + 1 === files.length) {
+                            if (readCount === files.length) {
                                 cb(0, keyObjects);
                             }
                         });

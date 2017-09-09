@@ -42,25 +42,32 @@ describe("开始文件证书测试...", function () {
         })
     })
 
-    step('测试生成文件证书对象', function(done){
-        key.setOption(options);
-        console.time('')
-        key.createKey(config.username, config.pwd, function(err, _keyobject){
+    step('从目录读取文件证书', function(done){
+        key.importFromDir(null, function(err, keyObjects){
             expect(err).to.be.equal(0);
-            if (err === 0) {
-                keyobject = _keyobject;
-            }
+            console.log(keyObjects)
             done();
         })
     })
 
-    step('测试解密文件证书', function(done){
-        key.recover(config.pwd, keyobject, function(err, privateKey){
+    step('从目录读取文件证书', function(done){
+        key.importFromDir(null, function(err, keyObjects){
             expect(err).to.be.equal(0);
             done();
         })
     })
+
+    step('从目录读取文件证书', function(done){
+        key.importFromDir(null, function(err, keyObjects){
+            expect(err).to.be.equal(0);
+            console.log(keyObjects)
+            done();
+        })
+    })
 })
+
+
+return;
 
 describe("开始ukey测试...", function () {
     step('01 测试获取序列号列表：ukeyEnumDevice', function (done) {

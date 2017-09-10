@@ -784,7 +784,7 @@ module.exports = {
         }
     },
     // 导出key到文件
-    exportToFile: function (keyObject, keystore, outfileName, cb) {
+    exportToFile: function (keyObject, keystore, outfileName, overWrite, cb) {
         keystore = keystore || DEFAULT_PATH;
         var err = 0;
         var outfileName = outfileName || this.generateKeystoreFilename(keyObject);
@@ -793,7 +793,7 @@ module.exports = {
         var fileExist = fs.existsSync(outpath);
 
         if (isFunction(cb)) {
-            if (fileExist) {
+            if (fileExist && (!overWrite)) {
                 err = 2;
                 cb(err, null);
             } else {
@@ -804,11 +804,11 @@ module.exports = {
                 })
             }
         } else {
-            if (!fileExist) {
+            if (fileExist && (!overWrite)) {
+                return null;
+            } else {
                 fs.outputJsonSync(outpath, keyObject, option);
                 return outpath;
-            } else {
-                return null;
             }
         }
     },

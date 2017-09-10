@@ -99,13 +99,14 @@ key.createKey('lcq', '123456', function(err, keyObject) {
 | :------------   | :--------------------------------- |
 | keyObject       | 生成的key对象，调用函数               |
 | keystore        | 导出的目录                            |
-| outfileName        | 导出的文件名                            |
+| outfileName        | 导出的文件名                       |
+| overWrite        | 是否文件存在的情况下支持覆盖重写       |
 | cb(err, outpath)  | 回调函数，如果不传，那么同步调用      |
 返回值说明：导出的文件路径outpath。
 ```JavaScript
 var keyObject = key.createKey('lcq', '123456');
 // 异步导出
-key.exportToFile(keyObject, DEFAULT_PATH, 'lcq.json', function(err, outpath){
+key.exportToFile(keyObject, DEFAULT_PATH, 'lcq.json', true, function(err, outpath){
     console.log(outpath);
 });
 ```

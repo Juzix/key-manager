@@ -13,55 +13,6 @@ try {
 var skip = it.skip;
 var only = it.only;
 
-describe("开始文件证书测试...", function () {
-    var keyobject = null;
-    var outpath = null;
-
-    step('测试生成文件证书对象', function(done){
-        key.createKey(config.username, config.pwd, function(err, _keyobject){
-            expect(err).to.be.equal(0);
-            if (err === 0) {
-                keyobject = _keyobject;
-            }
-            done();
-        })
-    })
-
-    step('测试生成文件导入到文件夹', function(done){
-        key.exportToFile(keyobject, null, keyobject.username + '.json', true, function(err, _outpath){
-            expect(err).to.be.equal(0);
-            if (err === 0) {
-                outpath = _outpath;
-            }
-            done();
-        });
-    })
-
-    step('测试通过文件读取key', function(done){
-        key.importFromFilePath(outpath, function(err, _keyobject){
-            expect(err).to.be.equal(0);
-            expect(_keyobject).to.be.deep.equal(keyobject);
-            done();
-        });
-    })
-
-    step('测试解密文件证书', function(done){
-        key.recover(config.pwd, keyobject, function(err, privateKey){
-            expect(err).to.be.equal(0);
-            done();
-        })
-    })
-
-    step('从目录读取文件证书', function(done){
-        key.importFromDir(null, function(err, keyObjects){
-            expect(err).to.be.equal(0);
-            // console.log(keyObjects)
-            done();
-        })
-    })
-
-})
-
 describe("开始ukey测试...", function () {
     step('01 测试获取序列号列表：ukeyEnumDevice', function (done) {
         key.ukeyEnumDevice(function (err, ret) {

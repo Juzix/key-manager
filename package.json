@@ -4,7 +4,8 @@
   "description": "私钥管理",
   "main": "index.js",
   "scripts": {
-    "test": "node ./node_modules/mocha/bin/mocha --timeout 30000"
+    "test-file-key": "node ./node_modules/mocha/bin/mocha ./test/test-file-key.js --timeout 30000",
+    "test-ukey": "node ./node_modules/mocha/bin/mocha ./test/test-ukey.js --timeout 30000"
   },
   "keywords": [
     "key",

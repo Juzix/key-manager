@@ -49,7 +49,7 @@ var ret1 = key.ukeyRSAEncrypt(pbData);
 
 测试
 -----
-目前写了所有的ukey的测试用例，如果你需要测试，请在`test`目录下面以config.default.js为蓝本，重新生成一份你的ukey信息的config.js配置，然后执行`npm run test`即可。里面有一些调用接口的示例，也可进行参考。
+目前写了所有的ukey的测试用例，如果你需要测试，部分文件证书测试用例。请在`test`目录下面以config.default.js为蓝本，重新生成一份你的ukey信息的config.js配置，然后执行`npm run test-ukey`即可测试ukey。执行`npm run test-file-key`测试文件证书测试用例。里面有一些调用接口的示例，也可进行参考。
 
 
 文件证书常用方法说明 
@@ -57,16 +57,17 @@ var ret1 = key.ukeyRSAEncrypt(pbData);
 #### 1 创建key
 |     参数       |             说明                   |
 | :------------    | :--------------------------------- |
-| username         | 用户账号                            |
+| account         | 用户账号                            |
+| username         | 用户名                            |
 | password         | 用户密码                            |
 | cb(err, keyObject) | 回调函数，如果不传，那么同步调用      |
 返回值说明：一个新的keyObject对象。
 ```JavaScript
 // 同步创建key
-var keyObject = key.createKey('lcq', '123456');
+var keyObject = key.createKey('lcq', '卢郴群', 123456');
 
 // 异步创建key
-key.createKey('lcq', '123456', function(err, keyObject) {
+key.createKey('lcq', '卢郴群', '123456', function(err, keyObject) {
     console.log(keyObject);
 });
 
@@ -90,7 +91,8 @@ key.createKey('lcq', '123456', function(err, keyObject) {
     },
     "id":"5c3eb953-bc5c-4512-ad0b-a8365a7ec414",
     "version":3,
-    "username":"lcq"
+    "username":"卢郴群",
+    "account":"lcq"
 }
 ```
 
@@ -114,12 +116,12 @@ key.exportToFile(keyObject, DEFAULT_PATH, 'lcq.json', true, function(err, outpat
 ### 3 根据用户名导出key
 |     参数      |             说明                   |
 | :------------   | :--------------------------------- |
-| username       | 用户名               |
+| account       | 用户名               |
 | keystore        | 目录路径                            |
 | cb(err, keyObject)  | 回调函数，如果不传，那么同步调用      |
 返回值说明：用户对应的keyObject。
 ```JavaScript
-key.importFromUsername('lcq', DEFAULT_PATH, function(err, keyObject){
+key.importFromAccount('lcq', DEFAULT_PATH, function(err, keyObject){
     console.log(keyObject);
 });
 ```

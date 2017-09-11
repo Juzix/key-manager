@@ -34,6 +34,7 @@ module.exports = {
     pbCipherB:'',
     pbResult: '',
     // 下面是文件证书的配置
-    username:'lcq',
+    account:'lcq',
+    username:'卢郴群',
     pwd:'123456',
 }

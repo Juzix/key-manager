@@ -750,12 +750,12 @@ module.exports = {
     // 获取key的文件名
     generateKeystoreFilename: function (keyObject) {
         var now = new Date().getTime().toString();
-        filename = (keyObject.username || now) + '.json';
+        filename = (keyObject.account || now) + '.json';
 
         return filename;
     },
     // 创建key
-    createKey: function (username, password, cb) {
+    createKey: function (account, username, password, cb) {
         var options = this.getOption();
         var err = 0;
         if (isFunction(cb)) {
@@ -765,6 +765,7 @@ module.exports = {
                     keythereum.dump(password, dk.privateKey, dk.salt, dk.iv, options, function (keyObject) {
                         if (keyObject) {
                             keyObject.username = username;
+                            keyObject.account = account;
                             keyObject.address = '0x' + keyObject.address;
                         } else {
                             err = 2;
@@ -779,6 +780,7 @@ module.exports = {
             var dk = this.createDk();
             var keyObject = keythereum.dump(password, dk.privateKey, dk.salt, dk.iv, options);
             keyObject.username = username;
+            keyObject.account = account;
             keyObject.address = '0x' + keyObject.address;
             return keyObject;
         }
@@ -813,9 +815,9 @@ module.exports = {
         }
     },
     // 通过用户名，目录找到对应的key
-    importFromUsername: function (username, keystore, cb) {
+    importFromAccount: function (account, keystore, cb) {
         keystore = keystore || DEFAULT_PATH;
-        var filePath = path.join(keystore, username + '.json');
+        var filePath = path.join(keystore, account + '.json');
         return this.importFromFilePath(filePath, cb);
     },
     // 通过路径，找到对应的key
@@ -893,7 +895,7 @@ module.exports = {
                 if (privateKey) {
                     self.createDk(function (err, dk) {
                         if (dk) {
-                            self.createKey(keyObject.username, newPassword, function (err, keyObject) {
+                            self.createKey(keyObject.account, newPassword, function (err, keyObject) {
                                 newKeyObject = keyObject
                                 cb(err, newKeyObject);
                             })
@@ -909,7 +911,7 @@ module.exports = {
             var privateKey = this.recover(oldPassword, keyObject);
             if (privateKey) {
                 var dk = this.createDk();
-                newKeyObject = this.createKey(keyObject.username, newPassword);
+                newKeyObject = this.createKey(keyObject.account, newPassword);
             }
             return newKeyObject;
         }

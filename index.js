@@ -895,7 +895,7 @@ module.exports = {
                 if (privateKey) {
                     self.createDk(function (err, dk) {
                         if (dk) {
-                            self.createKey(keyObject.account, newPassword, function (err, keyObject) {
+                            self.createKey(keyObject.account, keyObject.username, newPassword, function (err, keyObject) {
                                 newKeyObject = keyObject
                                 cb(err, newKeyObject);
                             })
@@ -911,7 +911,7 @@ module.exports = {
             var privateKey = this.recover(oldPassword, keyObject);
             if (privateKey) {
                 var dk = this.createDk();
-                newKeyObject = this.createKey(keyObject.account, newPassword);
+                newKeyObject = this.createKey(keyObject.account, keyObject.username, newPassword);
             }
             return newKeyObject;
         }

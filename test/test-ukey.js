@@ -56,6 +56,14 @@ describe("开始ukey测试...", function () {
         })
     });
 
+    step('06 测试验证用普通用户户口令是否错误：ukeyVerifyPin', function (done) {
+        key.ukeyVerifyPin(config.hDev, config.dwPinType.USER_TYPE, config.pbUserPin + 'wrong', function (err, ret) {
+            expect(ret.err).to.be.not.equal(0);
+            expect(ret.pdwRetryCount).to.be.least(0);
+            done();
+        })
+    });
+
     step('06 测试验证用普通用户户口令是否正确：ukeyVerifyPin', function (done) {
         key.ukeyVerifyPin(config.hDev, config.dwPinType.USER_TYPE, config.pbUserPin, function (err, ret) {
             expect(ret.err).to.be.equal(0);

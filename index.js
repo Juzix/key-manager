@@ -858,6 +858,9 @@ module.exports = {
                     cb(1, keyObjects);
                 } else {
                     files = files.filter((file) => file.endsWith('.json'));
+                    if (files.length === 0) {
+                        cb(0, keyObjects);
+                    }
                     var readCount = 0;
                     files.forEach(function (file, index) {
                         var filePath = path.join(keystore, file);

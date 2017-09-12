@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test-file-key": "node ./node_modules/mocha/bin/mocha ./test/test-file-key.js --timeout 30000",
-    "test-ukey": "node ./node_modules/mocha/bin/mocha ./test/test-ukey.js --timeout 30000"
+    "test-ukey": "node ./node_modules/mocha/bin/mocha ./test/test-ukey.js --timeout 30000",
+    "test": "npm run test-file-key && npm run test-ukey"
   },
   "keywords": [
     "key",

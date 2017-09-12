@@ -30,15 +30,12 @@ var dwordPoint = ref.refType(ref.types.ulong);
 var uint64Point = ref.refType(ref.types.uint64);
 var boolPoint = ref.refType(ref.types.bool);
 if (os.platform() === 'win32') {
-    var dllName = (os.arch() === 'x64') ? ('WDJuZhenAPIx64') : ('WDJuZhenAPIx86');
-    var dllPath = path.join(__dirname, 'dynamic', dllName);
-    if (!fs.existsSync(dllPath)) {
-        if (os.platform() === 'win32') {
-            if (os.arch() === 'x64') {
-                dllPath = path.join("c:", "Windows", "System32", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
-            } else {
-                dllPath = path.join("c:", "Windows", "SysWOW64", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
-            }
+    var dllPath = null;
+    if (os.platform() === 'win32') {
+        if (os.arch() === 'x64') {
+            dllPath = path.join("c:", "Windows", "System32", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
+        } else {
+            dllPath = path.join("c:", "Windows", "SysWOW64", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
         }
     }
 
@@ -1002,24 +999,42 @@ module.exports = {
             overwrite: false,
         }
 
+        if(!fs.existsSync(srcDir)){
+            if (isFunction(cb)) {
+                cb(1, []);
+            } else {
+                return [];
+            }
+            return;
+        };
+
         // 只拷贝一级目录且不存在目标路径的json文件。
-        var srcFiles = fs.readdirSync(srcDir).filter((file) => fs.lstatSync(path.join(srcDir, file)).isFile());
-        var distFiles = fs.readdirSync(distDir).filter((file) => fs.lstatSync(path.join(distDir, file)).isFile());
+        var srcFiles = [];
+        var distFiles = [];
+        try {
+            srcFiles = fs.readdirSync(srcDir).filter((file) => fs.lstatSync(path.join(srcDir, file)).isFile());
+        } catch (error) { }
+        try {
+            distFiles = fs.readdirSync(distDir).filter((file) => fs.lstatSync(path.join(distDir, file)).isFile());
+        } catch (error) { }
+
         srcFiles = srcFiles.filter((file) => file.endsWith('.json'));
         srcFiles = srcFiles.filter((file) => distFiles.indexOf(file) < 0);
 
         var copyCount = 0;
 
         if (isFunction(cb)) {
+            var copyCount = 0;
             srcFiles.forEach((file, index) => {
                 var srcFilePath = path.join(srcDir, file);
                 var distFilePath = path.join(distDir, file);
                 fs.copy(srcFilePath, distFilePath, option, function (err) {
+                    copyCount++;
                     if (!err) {
                         copyFiles.push(file);
                     }
-                    if (index + 1 === srcFiles.length) {
-                        cb(0, srcFiles);
+                    if (copyCount === srcFiles.length) {
+                        cb(0, copyFiles);
                     }
                 })
             })

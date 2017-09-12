@@ -71,15 +71,29 @@ describe("开始文件证书测试...", function () {
     })
 
     step('测试修改密码(密码正确)', function(done){
-        key.resetPassword(config.pwd, '654321', keyObject, function(err, keyObject){
+        var newPwd = '654321';
+        key.resetPassword(config.pwd, newPwd, keyObject, function(err, newKeyObject){
             expect(err).to.be.equal(0);
-            done();
+            if (err === 0) {
+                expect(keyObject.address).to.be.equal(newKeyObject.address);
+                expect(keyObject.id).to.be.equal(newKeyObject.id);
+                expect(keyObject.version).to.be.equal(newKeyObject.version);
+                expect(keyObject.username).to.be.equal(newKeyObject.username);
+                expect(keyObject.account).to.be.equal(newKeyObject.account);
+                key.recover(newPwd, newKeyObject, function(err, privateKey){
+                    expect(err).to.be.equal(0);
+                    done();
+                })
+            } else {
+                done();
+            }
         })
     })
 
     step('测试修改密码(密码错误)', function(done){
         key.resetPassword(String(new Date().getTime()), '654321', keyObject, function(err, keyObject){
             expect(err).to.be.not.equal(0);
+            expect(keyObject).to.be.null;
             done();
         })
     })

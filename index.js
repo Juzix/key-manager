@@ -888,32 +888,40 @@ module.exports = {
     },
     // 重置key
     resetPassword: function (oldPassword, newPassword, keyObject, cb) {
-        var newKeyObject = null;
+        function deepClone(o){
+            return JSON.parse(JSON.stringify(o));
+        }
         var self = this;
         if (isFunction(cb)) {
             self.recover(oldPassword, keyObject, function (err, privateKey) {
                 if (privateKey) {
                     self.createDk(function (err, dk) {
                         if (dk) {
-                            self.createKey(keyObject.account, keyObject.username, newPassword, function (err, keyObject) {
-                                newKeyObject = keyObject
-                                cb(err, newKeyObject);
+                            self.createKey(keyObject.account, keyObject.username, newPassword, function (err, newKeyObject) {
+                                var newKey = deepClone(keyObject);
+                                newKey.crypto = newKeyObject.crypto;
+                                cb(err, newKey);
                             })
                         } else {
-                            cb(err, newKeyObject);
+                            cb(err, null);
                         }
                     })
                 } else {
-                    cb(err, newKeyObject);
+                    cb(err, null);
                 }
             });
         } else {
+            var newKey = null;
             var privateKey = this.recover(oldPassword, keyObject);
             if (privateKey) {
                 var dk = this.createDk();
-                newKeyObject = this.createKey(keyObject.account, keyObject.username, newPassword);
+                var newKeyObject = this.createKey(keyObject.account, keyObject.username, newPassword);
+                if (newKeyObject) {
+                    var newKey = deepClone(keyObject);
+                    newKey.crypto = newKeyObject.crypto;
+                }
             }
-            return newKeyObject;
+            return newKey;
         }
     },
     // 获取私钥privateKey

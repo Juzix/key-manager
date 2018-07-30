@@ -14,6 +14,13 @@ var skip = it.skip;
 var only = it.only;
 
 describe("开始ukey测试...", function () {
+    step('00 初始化Ukey：initUkey', function (done) {
+        key.initUkey(function (err, ret) {
+            expect(ret.err).to.be.equal(0);
+            done();
+        })
+    });
+
     step('01 测试获取序列号列表：ukeyEnumDevice', function (done) {
         key.ukeyEnumDevice(function (err, ret) {
             expect(ret.err).to.be.equal(0);

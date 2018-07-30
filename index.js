@@ -29,58 +29,6 @@ var ukey = null;
 var dwordPoint = ref.refType(ref.types.ulong);
 var uint64Point = ref.refType(ref.types.uint64);
 var boolPoint = ref.refType(ref.types.bool);
-if (os.platform() === 'win32') {
-    var dllPath = null;
-    if (os.platform() === 'win32') {
-        if (os.arch() === 'x64') {
-            dllPath = path.join("c:", "Windows", "System32", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
-        } else {
-            dllPath = path.join("c:", "Windows", "SysWOW64", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
-        }
-    }
-
-    if (fs.existsSync(dllPath)) {
-        ukey = ffi.Library(dllPath, {
-            'J_BC_WD_EnumDevice': ['int', ['string', dwordPoint]],  // 01 
-            'J_BC_WD_OpenDevice': ['int', ['string', uint64Point]],  // 02 
-            'J_BC_WD_CloseDevice': ['int', ['uint64']],  // 03 
-            'J_BC_WD_FormatDevice': ['int', ['uint64', 'string']],  // 04 
-            'J_BC_WD_IsDefaultPin': ['int', ['uint64', 'int', boolPoint]],  // 05 
-            'J_BC_WD_VerifyPin': ['int', ['uint64', 'ulong', 'string', dwordPoint]],  // 06 
-            'J_BC_WD_ChangePin': ['int', ['uint64', 'ulong', 'string', 'string', dwordPoint]],  // 07 
-            'J_BC_WD_RSAGenKey': ['int', ['uint64']],  // 08 
-            'J_BC_WD_ECCGenKey': ['int', ['uint64']],  // 09 
-            'J_BC_WD_RSAGetPubKey': ['int', ['uint64', 'string', dwordPoint]],  // 10 
-            'J_BC_WD_ECCGetPubKey': ['int', ['uint64', 'string', dwordPoint]],  // 11 
-            'J_BC_WD_ImportRSACert': ['int', ['uint64', 'string']],  // 12 
-            'J_BC_WD_ExPortRSACert': ['int', ['uint64', 'string', dwordPoint]],  // 13 
-            'J_BC_WD_RSAEncrypt': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 14 
-            'J_BC_WD_RSASign': ['int', ['uint64', 'int', 'string', 'int', 'string', dwordPoint]],  // 15 
-            'J_BC_WD_ECCSign': ['int', ['uint64', 'string', 'int', 'string', 'int', 'string', dwordPoint]],  // 16 
-            'J_BC_WD_RSAVerifySign': ['int', ['uint64', 'int', 'string', 'int', 'string']], // 17  
-            'J_BC_WD_ECCVerifySign': ['int', ['uint64', 'string']],  // 18 
-            'J_BC_BE_Enc': ['int', ['uint64', 'string', 'int', 'int', 'string', 'string', dwordPoint]],  // 19
-            'J_BC_BE_Dec': ['int', ['uint64', 'string', 'int', 'int', 'string', dwordPoint]],  // 20
-            'J_BC_GS_CheckKeyPair': ['int', ['uint64']],  // 21
-            'J_BC_GS_ImportMPubKey': ['int', ['uint64', 'string', 'int']],  // 22
-            'J_BC_GS_ImportUPriKey': ['int', ['uint64', 'string', 'int']],  // 23 
-            'J_BC_GS_Sign': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 24
-            'J_BC_GS_Verify': ['int', ['uint64', 'string', 'int', 'string', 'int']],  // 25
-            'J_BC_WD_TradeSignProtect': ['int', ['uint64', 'string', 'int', 'string', 'int', 'int', 'string', 'string', dwordPoint]],  // 26
-            'WDScardEncrypt_ECIES': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 27
-            'WDScardDecrypt_ECIES': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 28 
-            'J_BC_WD_WriteData': ['int', ['uint64', 'string', 'int']],  // 29 
-            'J_BC_WD_ReadData': ['int', ['uint64', 'string', dwordPoint]],  // 30 
-            'WDScardGenKey_PAI': ['int', ['uint64', 'int']],  // 31 
-            'WDScardGetPubKeyn_PAI': ['int', ['uint64', 'string', dwordPoint]],  // 32 
-            'WDScardEncryption_PAI': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 33 
-            'WDScardDecryption_PAI': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 34 
-            'WDScardHomAdd_PAI': ['int', ['uint64', 'string', 'int', 'string', 'int', 'string', dwordPoint]],  // 35 
-        });
-    } else {
-        console.error('WatchDataV5 not exit!')
-    }
-}
 
 function keccak256(buffer) {
     return createKeccakHash("keccak256").update(buffer).digest();
@@ -113,6 +61,71 @@ function getBLen(str) {
 }
 
 module.exports = {
+    initUkey: function(cb) {
+        if (os.platform() === 'win32') {
+            var dllPath = null;
+            if (os.platform() === 'win32') {
+                if (os.arch() === 'x64') {
+                    dllPath = path.join("c:", "Windows", "System32", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
+                } else {
+                    dllPath = path.join("c:", "Windows", "SysWOW64", "WatchDataV5", "Juzhen CSP v1.0", "WDJuZhenAPI.dll");
+                }
+            }
+
+            var ret = {
+                err: 0,
+                msg: "init success"
+            }
+        
+            if (fs.existsSync(dllPath)) {
+                ukey = ffi.Library(dllPath, {
+                    'J_BC_WD_EnumDevice': ['int', ['string', dwordPoint]],  // 01 
+                    'J_BC_WD_OpenDevice': ['int', ['string', uint64Point]],  // 02 
+                    'J_BC_WD_CloseDevice': ['int', ['uint64']],  // 03 
+                    'J_BC_WD_FormatDevice': ['int', ['uint64', 'string']],  // 04 
+                    'J_BC_WD_IsDefaultPin': ['int', ['uint64', 'int', boolPoint]],  // 05 
+                    'J_BC_WD_VerifyPin': ['int', ['uint64', 'ulong', 'string', dwordPoint]],  // 06 
+                    'J_BC_WD_ChangePin': ['int', ['uint64', 'ulong', 'string', 'string', dwordPoint]],  // 07 
+                    'J_BC_WD_RSAGenKey': ['int', ['uint64']],  // 08 
+                    'J_BC_WD_ECCGenKey': ['int', ['uint64']],  // 09 
+                    'J_BC_WD_RSAGetPubKey': ['int', ['uint64', 'string', dwordPoint]],  // 10 
+                    'J_BC_WD_ECCGetPubKey': ['int', ['uint64', 'string', dwordPoint]],  // 11 
+                    'J_BC_WD_ImportRSACert': ['int', ['uint64', 'string']],  // 12 
+                    'J_BC_WD_ExPortRSACert': ['int', ['uint64', 'string', dwordPoint]],  // 13 
+                    'J_BC_WD_RSAEncrypt': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 14 
+                    'J_BC_WD_RSASign': ['int', ['uint64', 'int', 'string', 'int', 'string', dwordPoint]],  // 15 
+                    'J_BC_WD_ECCSign': ['int', ['uint64', 'string', 'int', 'string', 'int', 'string', dwordPoint]],  // 16 
+                    'J_BC_WD_RSAVerifySign': ['int', ['uint64', 'int', 'string', 'int', 'string']], // 17  
+                    'J_BC_WD_ECCVerifySign': ['int', ['uint64', 'string']],  // 18 
+                    'J_BC_BE_Enc': ['int', ['uint64', 'string', 'int', 'int', 'string', 'string', dwordPoint]],  // 19
+                    'J_BC_BE_Dec': ['int', ['uint64', 'string', 'int', 'int', 'string', dwordPoint]],  // 20
+                    'J_BC_GS_CheckKeyPair': ['int', ['uint64']],  // 21
+                    'J_BC_GS_ImportMPubKey': ['int', ['uint64', 'string', 'int']],  // 22
+                    'J_BC_GS_ImportUPriKey': ['int', ['uint64', 'string', 'int']],  // 23 
+                    'J_BC_GS_Sign': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 24
+                    'J_BC_GS_Verify': ['int', ['uint64', 'string', 'int', 'string', 'int']],  // 25
+                    'J_BC_WD_TradeSignProtect': ['int', ['uint64', 'string', 'int', 'string', 'int', 'int', 'string', 'string', dwordPoint]],  // 26
+                    'WDScardEncrypt_ECIES': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 27
+                    'WDScardDecrypt_ECIES': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 28 
+                    'J_BC_WD_WriteData': ['int', ['uint64', 'string', 'int']],  // 29 
+                    'J_BC_WD_ReadData': ['int', ['uint64', 'string', dwordPoint]],  // 30 
+                    'WDScardGenKey_PAI': ['int', ['uint64', 'int']],  // 31 
+                    'WDScardGetPubKeyn_PAI': ['int', ['uint64', 'string', dwordPoint]],  // 32 
+                    'WDScardEncryption_PAI': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 33 
+                    'WDScardDecryption_PAI': ['int', ['uint64', 'string', 'int', 'string', dwordPoint]],  // 34 
+                    'WDScardHomAdd_PAI': ['int', ['uint64', 'string', 'int', 'string', 'int', 'string', dwordPoint]],  // 35 
+                });
+                isFunction(cb) && cb(ret.err, ret);
+            } else {
+                console.error('WatchDataV5 not exit!');
+                ret = {
+                    err: -1,
+                    msg: "init fail, WatchDataV5 not exit!"
+                }
+                isFunction(cb) && cb(ret.err, ret);
+            }
+        }
+    },
     // 01 J_BC_WD_EnumDevice ( OUT BYTE*pbNameList, OUT DWORD* pdwSizeLen);
     ukeyEnumDevice: function (cb) {
         var pbNameList = Buffer.alloc(512);

@@ -225,6 +225,14 @@ ukey常用方法说明
 
 更多关于ukey的说明文档，请看国培的[ukey](http://192.168.9.66/caiguopei/ukey)文档。   
 
+### **`initUkey`** 
+初始化uKey(解决软件打开的时候弹窗 win32 error 1114问题)   
+入参：
+* 无 
+
+出参：
+* `msg`: String 初始化信息
+
 ### **`ukeyEnumDevice`** 
 枚举所有设备，并返回设备的序列号列表   
 入参：
